@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  redis:
+    image: ${REGISTRY}/redis
+  shop:
+    build:
+      context: "."
+    environment:
+      - R_HOST=rscript
+    working_dir: /var/www/html/
+    ports:
+      - 8999:8080
+    volumes:
+      - ./:/var/www/html
+      - ./.config/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./.config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./.config/php/php.ini-production:/etc/php/php.ini-production
+      - ./.config/php-fpm.d/www.conf:/etc/php-fpm.d/www.conf
+      - ./.config/supervisor/conf.d:/etc/supervisor/conf.d
