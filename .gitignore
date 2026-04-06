@@ -1,0 +1,37 @@
+# --- Laravel 核心 (位於 src 目錄) ---
+/src/vendor/
+/src/node_modules/
+/src/.env
+/src/.env.backup
+/src/.env.production
+/src/storage/*.key
+/src/storage/framework/cache/data/*
+/src/storage/framework/sessions/*
+/src/storage/framework/testing/*
+/src/storage/framework/views/*
+/src/storage/logs/*
+/src/bootstrap/cache/*
+!/src/bootstrap/cache/.gitignore
+/src/public/storage
+/src/public/hot
+
+# --- Docker 持久化數據 ---
+# 排除 SQL Server 的數據目錄（如果你有掛載本地資料夾）
+# 即使目前是用 Docker Managed Volume，養成排除數據目錄的習慣比較安全
+mssql_data/
+mysql_data/
+.docker-sync/
+
+# --- 開發工具與系統 ---
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+
+# --- 測試與編譯 ---
+/src/phpunit.xml
+/src/.phpunit.result.cache
+/src/node_modules/
+/src/public/build/
