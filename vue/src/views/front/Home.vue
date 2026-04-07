@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from "vue";
 import { ElButton, ElCarousel, ElCarouselItem, ElImage } from "element-plus";
+import { useRouter } from "vue-router"; 
+
 
 // 背景輪播圖片
 const banners = [
@@ -35,7 +37,9 @@ const banners = [
     <div class="content">
       <div class="text-button">
         <h1>歡迎來到我的商城</h1>
-        <el-button size="large" round>登入/註冊</el-button>
+        <el-button size="large" round @click="$router.push('/login')"
+          >登入/註冊</el-button
+        >
       </div>
     </div>
   </main>

@@ -20,8 +20,39 @@ const routes = [
   {
     path: '/shop',
     name: 'Shop',
-    component: () => import('../views/front/Shop.vue')
-  }, 
+    component: () => import('../views/front/shop/Shop.vue')
+  },
+  {
+    path: '/product/:id',
+    name: 'ProductDetail',
+    component: () => import('../views/front/shop/ProductDetail.vue')
+  },
+  {
+    path: '/cart',
+    name: 'Cart',
+    component: () => import('../views/front/shop/ShopCart.vue')
+  },
+  {
+    path: '/order',
+    name: 'Order',
+    component: () => import('../views/front/shop/ShopOrder.vue')
+  },
+  {
+    path: '/profile',
+    component: () => import('../components/ProfileLayout.vue'),
+    children: [
+      {
+        path: '', // 對應 /profile
+        name: 'Profile',
+        component: () => import('../views/front/profile/Profile.vue')
+      },
+      {
+        path: 'orders', // 對應 /profile/orders
+        name: 'ProfileOrder',
+        component: () => import('../views/front/profile/ProfileOrder.vue')
+      }
+    ]
+  },
   // 后台路由
   {
     path: '/admin',
@@ -31,7 +62,7 @@ const routes = [
   {
     path: '/admin/products',
     name: 'AdminProducts',
-    component: () => import('../views/admin/products.vue')    
+    component: () => import('../views/admin/products.vue')
   },
   {
     path: '/admin/products/:id',
