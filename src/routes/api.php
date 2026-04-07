@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
 // 公開路由
@@ -11,10 +12,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
+Route::get('/products', function () {
+    // 撈取所有啟用的商品
+    return Product::where('is_active', 1)->get();
+});
 
 // 需要登入的路由
 // middleware('auth:sanctum') 是守衛，意思是「這個路由需要帶有效的 token 才能進入」，沒有 token 會直接回傳 401 錯誤。
 
+// --- 需要登入的路由 ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users',   [UserController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
