@@ -1,31 +1,53 @@
 <script setup>
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import { ElInput, ElButton, ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import api from "../../api";
 
-const email = ref("");
-const password = ref("");
 const router = useRouter();
 
+const email = ref("");
+const password = ref("");
+const isSubmitting = ref(false);
+
+const emailRef = ref(null);
+const passwordRef = ref(null);
+
+//  跳轉到下一個輸入框
+const focusNext = () => {
+  if (!email.value) {
+    ElMessage.warning("請先輸入 EMAIL");
+    return;
+  }
+  nextTick(() => {
+    passwordRef.value?.focus();
+  });
+};
+
 // 帳密登入
-const login =async () =>{
+const login = async () => {
+  // 基本前端驗證
+  if (!email.value || !password.value) {
+    ElMessage.warning("請完整填寫所有欄位");
+    return;
+  }
+  isSubmitting.value = true;
   try {
-    const res = await api.post("/api/login", {
+    const res = await api.post("/login", {
       email: email.value,
       password: password.value,
     });
     // 儲存token到localStorage
-    localStorage.setItem("token", res.data.access_token); 
+    localStorage.setItem("token", res.data.access_token);
     // 跳轉到首頁
     ElMessage.success("登入成功");
     router.push("/");
-
-
   } catch (error) {
     ElMessage.error("登入失敗，請檢查您的帳號和密碼");
+  } finally {
+    isSubmitting.value = false;
   }
-}
+};
 </script>
 
 <template>
@@ -37,6 +59,8 @@ const login =async () =>{
         size="large"
         style="width: fit-content"
         placeholder="請輸入EMAIL"
+        ref="emailRef"
+        @keyup.enter="focusNext"
       />
       <el-input
         v-model="password"
@@ -44,11 +68,26 @@ const login =async () =>{
         placeholder="請輸入密碼"
         type="password"
         style="width: fit-content"
+        ref="passwordRef"
+        @keyup.enter="login"
+        show-password
       />
       <div class="signin-button">
-        <el-button type="primary" size="large">登入</el-button>
+        <el-button
+          type="primary"
+          size="large"
+          @click="login"
+          :loading="isSubmitting"
+          >登入</el-button
+        >
 
-        <el-button type="primary" plain size="large">註冊</el-button>
+        <el-button
+          type="primary"
+          plain
+          size="large"
+          @click="router.push('/register')"
+          >註冊</el-button
+        >
       </div>
     </div>
   </main>
