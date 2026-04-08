@@ -10,6 +10,7 @@ import { ElInput } from "element-plus";
     <h3>EMAIL</h3>
     <el-input size="large" placeholder="請輸入您的EMAIL"></el-input>
   </div>
+  <small style="color: red">※ 請牢記您的EMAIL，這將是您登入帳號的重要資訊</small >
   <div class="button"><el-button size="large">確認更新資料</el-button></div>
 </template>
 <style scoped>

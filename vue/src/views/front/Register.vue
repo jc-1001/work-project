@@ -30,7 +30,10 @@ const focusNext = (refName) => {
     ElMessage.warning("請先填寫密碼");
     return;
   }
-  if (refName === "confirmPasswordRef" && password.value !== confirmPassword.value) {
+  if (
+    refName === "confirmPasswordRef" &&
+    password.value !== confirmPassword.value
+  ) {
     ElMessage.error("兩次輸入的密碼不一致");
     return;
   }
@@ -130,6 +133,9 @@ const register = async () => {
         show-password
       />
       <div class="signin-button">
+        <el-button @click="$router.back()" type="primary" plain size="large"
+          >返回登入頁</el-button
+        >
         <el-button
           type="primary"
           size="large"

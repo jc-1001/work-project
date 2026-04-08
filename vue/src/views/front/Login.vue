@@ -13,6 +13,18 @@ const isSubmitting = ref(false);
 const emailRef = ref(null);
 const passwordRef = ref(null);
 
+
+// Login.vue 登入成功時，後端會回傳會員資料。你可以在登入成功後，將會員資料儲存到 Vuex 或 Pinia 的 store 中，這樣整個應用程式都可以存取會員資料了。
+const loginFeedback = async () =>{
+  const res = await api.post('login',loginData);
+  // 儲存token到localStorage
+  localStorage.setItem('token', res.data.access_token);
+  localStorage.setItem('user', JSON.stringify(res.data.user)); // 儲存會員資料到 localStorage
+}
+
+
+
+
 //  跳轉到下一個輸入框
 const focusNext = () => {
   if (!email.value) {
@@ -39,7 +51,13 @@ const login = async () => {
     });
     // 儲存token到localStorage
     localStorage.setItem("token", res.data.access_token);
-    // 跳轉到首頁
+    // 儲存會員資料物件!!轉成字串
+    // 這樣結帳頁就可以用localstorage的user拿到id
+    if (res.data.user) {
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+    }
+
+    // 登入成功跳轉到首頁
     ElMessage.success("登入成功");
     router.push("/");
   } catch (error) {
@@ -73,6 +91,14 @@ const login = async () => {
         show-password
       />
       <div class="signin-button">
+        <p>還沒有帳號嗎?</p>
+        <el-button
+          type="primary"
+          plain
+          size="large"
+          @click="router.push('/register')"
+          >註冊</el-button
+        >
         <el-button
           type="primary"
           size="large"
@@ -81,13 +107,6 @@ const login = async () => {
           >登入</el-button
         >
 
-        <el-button
-          type="primary"
-          plain
-          size="large"
-          @click="router.push('/register')"
-          >註冊</el-button
-        >
       </div>
     </div>
   </main>

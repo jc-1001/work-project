@@ -26,6 +26,32 @@ const handleChange = (value) => {
   }
 };
 
+// 加入購物車邏輯
+const addToCart = () => {
+    // 讀取localstorage中是否有購物車資料，沒有就給空陣列
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+// 檢查是否已經買過這個商品了，如果有就更新數量，沒有就新增一筆
+const index = cart.findIndex(item => item.id === product.value.id);
+
+// 如果買過就增加數量
+if (index !== -1) {
+  cart[index].quantity += num.value;
+} else {
+  // 沒有就把新商品推進去
+  cart.push({ 
+    id: product.value.id,
+    name: product.value.name,
+    price: product.value.price,
+    image: product.value.image,
+    quantity: num.value
+   });
+}
+
+// 將更新後的購物車資料儲存到 localStorage
+localStorage.setItem("cart", JSON.stringify(cart));
+ElMessage.success("已加入購物車!!!");
+}
 
 onMounted(() => {
   fetchProductDetail();
@@ -57,7 +83,9 @@ onMounted(() => {
 
           <div class="good-num">
             <el-input-number v-model="num" :min="1" :max="10" @change="handleChange" />
-            <el-button type="primary" size="large">加入購物車</el-button>
+            <el-button type="primary" size="large" @click="addToCart">
+              加入購物車
+            </el-button>
           </div>
 
         </el-col>

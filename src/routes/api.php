@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Models\Product;
+use App\Http\Controllers\Api\OrderController;
 use Illuminate\Support\Facades\Route;
 
 // 公開路由
@@ -31,5 +32,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users',   [UserController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me',      [AuthController::class, 'me']);
+    Route::post('/orders', [OrderController::class, 'store']);
     
 });
