@@ -15,12 +15,12 @@ const profileItem = ref([
         <ul>
           <li v-for="item in profileItem" :key="item.name">
             <RouterLink :to="item.path">
-                <div class="icon-container">
-                  <el-icon>
-                    <component :is="item.icon" />
-                  </el-icon>
-                  <h2>{{ item.name }}</h2>
-                </div>  
+              <div class="icon-container">
+                <el-icon>
+                  <component :is="item.icon" />
+                </el-icon>
+                <h2>{{ item.name }}</h2>
+              </div>
             </RouterLink>
           </li>
         </ul>
@@ -49,35 +49,39 @@ const profileItem = ref([
 }
 .profile-sidebar li {
   margin-bottom: 20px;
-  
-    
 }
-.profile-content{
-    height: max-content;
-    margin: 20px 0;
-    width: 100%;
-    padding: 20px;
-    background-color: #f5f5f5;
+.profile-content {
+  height: max-content;
+  margin: 20px 0;
+  width: 100%;
+  padding: 20px;
+  background-color: #f5f5f5;
 }
 .icon-container {
-    background-color: white;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;      
-    justify-content: center;  
-    gap: 12px;                
-    padding: 20px 40px;           
-    border: 1px solid transparent;
+  background-color: white;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 40px;
+  border: 1px solid transparent;
 }
 
 /* 移除 h2 的預設邊距，避免它把外框撐開或造成不對齊 */
 .icon-container h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #333;
-
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
 }
 a {
-    text-decoration: none;
+  text-decoration: none;
+}
+@media screen and (max-width: 768px) {
+  .profile-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  
 }
 </style>
