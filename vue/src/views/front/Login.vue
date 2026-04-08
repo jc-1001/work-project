@@ -13,18 +13,6 @@ const isSubmitting = ref(false);
 const emailRef = ref(null);
 const passwordRef = ref(null);
 
-
-// Login.vue 登入成功時，後端會回傳會員資料。你可以在登入成功後，將會員資料儲存到 Vuex 或 Pinia 的 store 中，這樣整個應用程式都可以存取會員資料了。
-const loginFeedback = async () =>{
-  const res = await api.post('login',loginData);
-  // 儲存token到localStorage
-  localStorage.setItem('token', res.data.access_token);
-  localStorage.setItem('user', JSON.stringify(res.data.user)); // 儲存會員資料到 localStorage
-}
-
-
-
-
 //  跳轉到下一個輸入框
 const focusNext = () => {
   if (!email.value) {
@@ -37,6 +25,7 @@ const focusNext = () => {
 };
 
 // 帳密登入
+// Login.vue 登入成功時，後端會回傳會員資料。你可以在登入成功後，將會員資料儲存到 Pinia 的 store 中，這樣整個應用程式都可以存取會員資料了。
 const login = async () => {
   // 基本前端驗證
   if (!email.value || !password.value) {
@@ -56,6 +45,10 @@ const login = async () => {
     if (res.data.user) {
       localStorage.setItem("user", JSON.stringify(res.data.user));
     }
+
+    // 發送一個自定義事件通知 NavBar 更新登入狀態
+    window.dispatchEvent(new Event("login-status-changed"));
+    
 
     // 登入成功跳轉到首頁
     ElMessage.success("登入成功");
@@ -106,7 +99,6 @@ const login = async () => {
           :loading="isSubmitting"
           >登入</el-button
         >
-
       </div>
     </div>
   </main>

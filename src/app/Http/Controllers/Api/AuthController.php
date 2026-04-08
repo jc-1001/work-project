@@ -93,6 +93,7 @@ class AuthController extends Controller
     // 登出
     public function logout(Request $request)
     {
+        // 刪除目前使用的token，讓它失效，這樣就算前端還帶著這個 token 來請求，也會被拒絕。
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
