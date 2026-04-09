@@ -9,22 +9,29 @@ const profileItem = ref([
 </script>
 
 <template>
-  <main>
+  <main class="profile-container">
     <div class="profile-layout">
       <aside class="profile-sidebar">
-        <ul>
-          <li v-for="item in profileItem" :key="item.name">
-            <RouterLink :to="item.path">
-              <div class="icon-container">
-                <el-icon>
-                  <component :is="item.icon" />
-                </el-icon>
-                <h2>{{ item.name }}</h2>
-              </div>
-            </RouterLink>
-          </li>
-        </ul>
+        <h2 class="mb-4">會員中心</h2>
+        
+        <el-menu
+          default-active="/profile"
+          class="side-menu"
+          router
+        >
+          <el-menu-item 
+            v-for="item in profileItem" 
+            :key="item.path" 
+            :index="item.path"
+          >
+            <el-icon>
+              <component :is="item.icon" />
+            </el-icon>
+            <span>{{ item.name }}</span>
+          </el-menu-item>
+        </el-menu>
       </aside>
+
       <section class="profile-content">
         <router-view />
       </section>
@@ -32,56 +39,88 @@ const profileItem = ref([
   </main>
 </template>
 <style scoped>
-.profile-layout {
-  display: flex;
-  min-height: 100vh;
-}
-.profile-sidebar {
-  width: 30%;
-  height: 100%;
-  background-color: #f5f5f5;
-  padding: 20px;
-  margin: 20px;
-}
-.profile-sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-.profile-sidebar li {
-  margin-bottom: 20px;
-}
-.profile-content {
-  height: max-content;
-  margin: 20px 0;
-  width: 100%;
-  padding: 20px;
-  background-color: #f5f5f5;
-}
-.icon-container {
-  background-color: white;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 20px 40px;
-  border: 1px solid transparent;
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
-/* 移除 h2 的預設邊距，避免它把外框撐開或造成不對齊 */
-.icon-container h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #333;
+.profile-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
 }
-a {
-  text-decoration: none;
+
+.profile-sidebar {
+  width: 280px; 
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid gray;
 }
+
+.profile-content {
+  flex-grow: 1; 
+  min-height: 500px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid gray;
+}
+
+/* 選單間距調整 */
+.side-menu :deep(.el-menu-item) {
+  margin-bottom: 10px; 
+  border-radius: 8px;  
+  border: 1px solid  gray; 
+  height: 50px; 
+  line-height: 50px;
+}
+
+/* 懸停的背景色 */
+.side-menu :deep(.el-menu-item:hover) {
+  background-color: #e6f7ff !important; 
+  color: #2381df !important;            
+}
+
+/* 被選取時的顏色 */
+.side-menu :deep(.el-menu-item.is-active) {
+  background-color: #2381df !important; 
+  color: #ffffff !important;       
+  border: none;     
+}
+/* 移除預設的右邊框 */
+.side-menu.el-menu {
+  border-right: none;
+}
+
+
 @media screen and (max-width: 768px) {
-  .profile-layout {
-    display: flex;
-    flex-direction: column;
+  .profile-container {
+    padding: 20px 10px; 
   }
+
+  .profile-layout {
+    flex-direction: column; 
+    gap: 20px;
+  }
+
+  .profile-sidebar {
+    width: 100%; 
+    box-sizing: border-box; 
+    display: block; 
+  }
+
+  .profile-content {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px; 
+  }
+
   
+  .side-menu {
+    background: transparent;
+    
+  }
 }
 </style>

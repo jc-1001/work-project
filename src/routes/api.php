@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
+Route::post('/users',    [UserController::class, 'user']);
 Route::get('/products', function () {
     // 撈取所有啟用的商品
     return Product::where('is_active', 1)->get();
@@ -25,6 +26,7 @@ Route::get('/products/{id}', function ($id) {
 });
 Route::post('/order_items', [OrderController::class, 'store']);
 
+
 // 需要登入的路由
 // middleware('auth:sanctum') 是守衛，意思是「這個路由需要帶有效的 token 才能進入」，沒有 token 會直接回傳 401 錯誤。
 
@@ -33,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users',   [UserController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me',      [AuthController::class, 'me']);
+    Route::put('/user/update', [UserController::class, 'update']);
     Route::post('/orders', [OrderController::class, 'store']);
     
 });
