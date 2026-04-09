@@ -56,7 +56,8 @@ const goToProductDetail = (id) => {
         <p>NT$ {{ product.price }}</p>
         <el-button
           type="primary"
-          size="small"
+          size="medium"
+          class="goods-button"
           @click="goToProductDetail(product.id)"
           >查看詳細</el-button
         >
@@ -64,3 +65,9 @@ const goToProductDetail = (id) => {
     </el-col>
   </el-row>
 </template>
+<style scoped>
+.goods-button {
+  margin-top: 10px;
+  width: 100%;
+}
+</style>

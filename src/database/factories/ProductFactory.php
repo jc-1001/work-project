@@ -21,7 +21,7 @@ class ProductFactory extends Factory
             'name' => '測試商品-' . fake()->unique()->word(),
             'description' => fake()->realText(50),
             'price' => fake()->numberBetween(100, 5000),
-            'stock' => fake()->numberBetween(0, 100),
+            'stock' => fake()->numberBetween(9, 1000),
             'image' => "https://picsum.photos/seed/" . fake()->unique()->numberBetween(1, 1000) . "/300/200",
             'is_active' => true,
             'created_at' => now(),

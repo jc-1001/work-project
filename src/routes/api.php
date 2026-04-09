@@ -23,6 +23,7 @@ Route::get('/products/{id}', function ($id) {
     // findOrFail 如果找不到 ID 會自動回傳 404
     return Product::where('is_active', 1)->findOrFail($id);
 });
+Route::post('/order_items', [OrderController::class, 'store']);
 
 // 需要登入的路由
 // middleware('auth:sanctum') 是守衛，意思是「這個路由需要帶有效的 token 才能進入」，沒有 token 會直接回傳 401 錯誤。

@@ -13,11 +13,17 @@ return new class extends Migration
 {
     Schema::create('orders', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->decimal('total_price', 10, 2);
-        $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
-        $table->string('shipping_address');
+        // 建立與 users 表的關聯
+        $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+        $table->string('order_number')->unique(); // 訂單編號
+        $table->string('name');
         $table->string('phone');
+        $table->string('address');
+        $table->integer('total_amount');
+        $table->string('payment_method'); // first: 信用卡, second: ATM
+        $table->string('invoice_type');   // Option1, Option2, Option3
+        $table->string('tax_id')->nullable(); // 統編
+        $table->string('carrier')->nullable(); // 載具
         $table->timestamps();
     });
 }

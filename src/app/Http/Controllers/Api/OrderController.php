@@ -5,30 +5,63 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderItem;
+use Illuminate\Support\Facades\DB; //事務處理
 
 class OrderController extends Controller
 {
     public function store(Request $request)
     {
-        // 這裡就是接收前端傳來的 user_id, total_price 等資料
+        // 1. 驗證資料（根據前端傳的 payload 結構）
         $validated = $request->validate([
-            'user_id' => 'required',
-            'total_price' => 'required|numeric',
-            'shipping_address' => 'required|string',
-            'phone' => 'required|string',
+            'customer.name'    => 'required|string',
+            'customer.phone'   => 'required|string',
+            'customer.address' => 'required|string',
+            'total'            => 'required|numeric',
+            'paymentMethod'    => 'required',
+            'bill'             => 'nullable',
+            'items'            => 'required|array', // 確認有商品清單
         ]);
 
-        $order = Order::create([
-            'user_id'          => $request->user_id,
-            'total_price'      => $request->total_price,
-            'status'           => 'pending',
-            'shipping_address' => $request->shipping_address,
-            'phone'            => $request->phone,
-        ]);
+        try {
+            // 使用 DB Transaction，確保訂單跟明細「要嘛一起成功，要嘛一起失敗」
+            return DB::transaction(function () use ($request) {
+                
+                // 2. 建立訂單主檔 (Orders)
+                $order = Order::create([
+                    'user_id'        => auth('sanctum')->id(),
+                    'order_number'   => 'ORD' . date('YmdHis') . rand(100, 999),
+                    'name'           => $request->customer['name'],
+                    'phone'          => $request->customer['phone'],
+                    'address'        => $request->customer['address'],
+                    'total_amount'   => $request->total,
+                    'payment_method' => $request->paymentMethod,
+                    'invoice_type' => $request->bill ?? 'Option1',
+                    'tax_id'         => $request->taxId ?? null, // 統編
+                    'carrier'        => $request->carrier ?? null, // 載具
+                ]);
 
-        return response()->json([
-            'message' => '訂單成功送出！',
-            'order' => $order
-        ], 201);
+                // 3. 建立訂單明細 (Order Items)
+                foreach ($request->items as $item) {
+                    $order->items()->create([
+                        'product_name' => $item['name'],
+                        'price'        => (int)$item['price'],
+                        'quantity'     => $item['quantity'],
+                    ]);
+                }
+
+                return response()->json([
+                    'message' => '訂單已成功送出！',
+                    'order_id' => $order->id
+                ], 201);
+            });
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => '訂單送出失敗，請稍後再試',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+       
     }
 }

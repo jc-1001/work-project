@@ -13,19 +13,32 @@ class Order extends Model
     // 這裡的名稱要跟妳資料庫表的欄位一模一樣
     protected $fillable = [
         'user_id',
-        'total_price',
-        'status',
-        'shipping_address',
+        'order_number',
+        'name',
         'phone',
+        'address',
+        'total_amount',
+        'payment_method',
+        'invoice_type',
+        'tax_id',
+        'carrier'
     ];
 
-    // 如果妳的資料表名稱是 orders（複數），Laravel 會自動對應。
-    // 如果資料表名稱比較特別，可以手動指定：
-    // protected $table = 'orders';
-
-
+    /**
+     * 關聯到使用者 (多對一)
+     * 訂單有記錄是誰買的
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * 關聯到訂單明細 (一對多)
+     * 能執行 $order->items()->create(...) 的關鍵
+     */
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }
