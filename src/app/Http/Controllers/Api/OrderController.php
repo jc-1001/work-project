@@ -10,6 +10,17 @@ use Illuminate\Support\Facades\DB; //事務處理
 
 class OrderController extends Controller
 {
+    // 取得目前登入使用者的所有訂單
+    public function index()
+    {
+        $orders = Order::where('user_id', auth('sanctum')->id())
+                       ->with('items.product')
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+
+        return response()->json($orders);
+    }
+
     public function store(Request $request)
     {
         // 1. 驗證資料（根據前端傳的 payload 結構）
@@ -44,6 +55,7 @@ class OrderController extends Controller
                 // 3. 建立訂單明細 (Order Items)
                 foreach ($request->items as $item) {
                     $order->items()->create([
+                        'product_id'   => $item['id'] ?? null,
                         'product_name' => $item['name'],
                         'price'        => (int)$item['price'],
                         'quantity'     => $item['quantity'],

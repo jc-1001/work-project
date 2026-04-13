@@ -61,11 +61,12 @@ const profileItem = ref([
 
 .profile-content {
   flex-grow: 1; 
-  min-height: 500px;
+  max-height: 60vh;
   background-color: #ffffff;
   border-radius: 12px;
   padding: 30px;
   border: 1px solid gray;
+  overflow-y: auto;
 }
 
 /* 選單間距調整 */

@@ -50,7 +50,7 @@ onMounted(() => {
     >※ 請牢記您的EMAIL，這將是您登入帳號的重要資訊</small
   >
   <div class="button">
-    <el-button size="large" @click="updateUser">確認更新資料</el-button>
+    <el-button size="large" type="success" @click="updateUser">確認更新資料</el-button>
   </div>
 </template>
 <style scoped>
