@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   redis:
-    image: ${REGISTRY}/redis
+    image: redis:alpine
   shop:
     build:
       context: "."

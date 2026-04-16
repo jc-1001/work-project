@@ -1,5 +1,5 @@
 ARG REGISTRY=registry.e-gps.tw
-FROM ${REGISTRY}/dev/lnp:php8.1-nginx1.22-bullseye
+FROM ${REGISTRY}/dev/lnp:php8.1-nginx1.24-bullseye
 
 WORKDIR /var/www/html
 
