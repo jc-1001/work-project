@@ -1,16 +1,44 @@
 version: "3.8"
 
 services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Password123
+    ports:
+      - 1434:1433
+
+  node:
+    image: node:20-alpine
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - 5173:5173
+    command: sh -c "npm install && npm run dev"
+
   redis:
     image: redis:alpine
+
   shop:
     build:
       context: "."
     environment:
       - R_HOST=rscript
+      - DB_CONNECTION=sqlsrv
+      - DB_HOST=mssql
+      - DB_PORT=1433
+      - DB_DATABASE=laravel
+      - DB_USERNAME=sa
+      - DB_PASSWORD=YourStrong@Password123
+      - REDIS_HOST=redis
     working_dir: /var/www/html/
     ports:
       - 8999:8080
+    depends_on:
+      - mssql
+      - redis
     volumes:
       - ./:/var/www/html
       - ./.config/nginx/conf.d:/etc/nginx/conf.d:ro
