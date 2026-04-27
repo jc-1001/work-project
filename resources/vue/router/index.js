@@ -16,6 +16,18 @@ const routes = [
     name: 'Register',
     component: () => import('../views/front/Register.vue')
   },
+  // 後臺路由
+  {
+    path: '/admin',
+    component: () => import('../AdminLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'AdminLogin',
+        component: () => import('../views/admin/adminLogin.vue')
+      },
+    ]
+  },
 ]
 
 const router = createRouter({

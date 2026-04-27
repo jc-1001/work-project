@@ -92,7 +92,7 @@ class OrderController extends Controller
                     'address'        => $validated['customer']['address'],
                     'total_amount'   => $totalAmount,
                     'payment_method' => $validated['paymentMethod'],
-                    'invoice_type'   => $validated['bill'] ?? 'Option1',
+                    'invoice_type'   => $validated['bill'] ?? '個人電子發票',
                     'tax_id'         => $validated['taxId'] ?? null,
                     'carrier'        => $validated['carrier'] ?? null,
                 ]);

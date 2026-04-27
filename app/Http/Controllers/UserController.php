@@ -37,7 +37,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => '資料更新成功',
-            'user' => $user
+            'user'    => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
         ]);
     }
 }

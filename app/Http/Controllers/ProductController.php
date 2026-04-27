@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -43,19 +44,40 @@ class ProductController extends Controller
             'is_active'   => 'boolean',
         ]);
 
+        // 在 update 前先存 $oldImagePath
+        // 先記錄舊圖路徑，update() 後會同步為新值
+        $oldImagePath = $product->image;
+
+        // 先上傳新圖片（暫存路徑），確保 DB 更新成功後才刪除舊檔
+        $newImagePath = null;
         if ($request->hasFile('image')) {
-            if ($product->image) Storage::disk('public')->delete($product->image);
-            $product->image = $request->file('image')->store('products', 'public');
+            $newImagePath = $request->file('image')->store('products', 'public');
         }
 
-        $product->update([
-            'name'        => $request->name,
-            'category_id' => $request->category_id,
-            'price'       => $request->price,
-            'stock'       => $request->stock,
-            'description' => $request->description,
-            'is_active'   => $request->input('is_active', true),
-        ]);
+        try {
+            $product->update([
+                'name'        => $request->name,
+                'category_id' => $request->category_id,
+                'price'       => $request->price,
+                'stock'       => $request->stock,
+                'description' => $request->description,
+                'image'       => $newImagePath ?? $product->image,
+                'is_active'   => $request->input('is_active', true),
+            ]);
+        } catch (\Throwable $e) {
+            // DB 失敗時清除剛上傳的新圖，避免孤立檔案
+            if ($newImagePath) Storage::disk('public')->delete($newImagePath);
+            throw $e;
+        }
+
+        // DB 成功後才刪除舊圖，刪除失敗僅記錄 warning，不影響回應
+        if ($newImagePath && $oldImagePath) {
+            try {
+                Storage::disk('public')->delete($oldImagePath);
+            } catch (\Throwable $e) {
+                Log::warning("舊圖刪除失敗: {$oldImagePath} - {$e->getMessage()}");
+            }
+        }
 
         return response()->json($product);
     }
