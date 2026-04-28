@@ -8,6 +8,10 @@
 </script>
 
 <template>
-  <NavBar v-if="!isAdmin" />
-  <router-view />
+  <v-app>
+    <NavBar v-if="!isAdmin" />
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>

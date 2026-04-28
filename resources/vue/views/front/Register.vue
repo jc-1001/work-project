@@ -1,116 +1,141 @@
 <script setup>
-import { ref, nextTick } from "vue";
-import { ElInput, ElButton, ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
-import api from "../../api";
+import { ref, nextTick } from "vue"
+import { useRouter } from "vue-router"
+import api from "../../api"
 
-const router = useRouter();
+const router = useRouter()
+const name = ref("")
+const email = ref("")
+const password = ref("")
+const confirmPassword = ref("")
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
+const isSubmitting = ref(false)
+const snackbar = ref({ show: false, text: "", color: "success" })
 
-const name = ref("");
-const email = ref("");
-const password = ref("");
-const confirmPassword = ref("");
+const emailRef = ref(null)
+const passwordRef = ref(null)
+const confirmPasswordRef = ref(null)
 
-const nameRef = ref(null);
-const emailRef = ref(null);
-const passwordRef = ref(null);
-const confirmPasswordRef = ref(null);
+const notify = (text, color = "success") => {
+  snackbar.value = { show: true, text, color }
+}
 
-const focusNext = (refName) => {
-  if (refName === "emailRef" && !name.value) {
-    ElMessage.warning("請先填寫使用者名稱");
-    return;
-  }
-  if (refName === "passwordRef" && !email.value) {
-    ElMessage.warning("請先填寫EMAIL");
-    return;
-  }
-  if (refName === "confirmPasswordRef" && !password.value) {
-    ElMessage.warning("請先填寫密碼");
-    return;
-  }
-  if (refName === "confirmPasswordRef" && password.value !== confirmPassword.value) {
-    ElMessage.error("兩次輸入的密碼不一致");
-    return;
-  }
-  if (refName === "confirmPasswordRef") {
-    register();
-    return;
-  }
-  const nextRef = { emailRef, passwordRef, confirmPasswordRef }[refName];
-  nextTick(() => { nextRef.value.focus(); });
-};
-
-nextTick(() => { nameRef.value.focus(); });
-
-const isSubmitting = ref(false);
+const focusNext = (nextRef) => {
+  nextTick(() => nextRef.value?.focus())
+}
 
 const register = async () => {
-  if (!name.value || !email.value || !password.value) {
-    ElMessage.warning("請完整填寫所有欄位");
-    return;
+  if (!name.value || !email.value || !password.value || !confirmPassword.value) {
+    notify("請完整填寫所有欄位", "warning")
+    return
   }
   if (password.value !== confirmPassword.value) {
-    ElMessage.error("兩次輸入的密碼不一致");
-    return;
+    notify("兩次輸入的密碼不一致", "error")
+    return
   }
-  isSubmitting.value = true;
+  isSubmitting.value = true
   try {
     await api.post("/register", {
       name: name.value,
       email: email.value,
       password: password.value,
       password_confirmation: confirmPassword.value,
-    });
-    ElMessage.success("註冊成功");
-    router.push("/login");
+    })
+    notify("註冊成功")
+    router.push("/login")
   } catch (error) {
-    const errorMessage = error.response?.data?.message || "註冊失敗，請檢查您的輸入資訊";
-    ElMessage.error(errorMessage);
+    if (!error.response) console.error("Register network error:", error)
+    notify(error.response?.data?.message || "註冊失敗，請檢查您的輸入資訊", "error")
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
   }
-};
+}
 </script>
 
 <template>
-  <main>
-    <div class="signin-block">
-      <h1>註冊</h1>
-      <el-input v-model="name" size="large" style="width: fit-content" placeholder="請輸入使用者名稱" ref="nameRef" @keyup.enter="focusNext('emailRef')" />
-      <el-input v-model="email" size="large" style="width: fit-content" placeholder="請輸入EMAIL" ref="emailRef" @keyup.enter="focusNext('passwordRef')" />
-      <el-input v-model="password" size="large" placeholder="請輸入密碼" type="password" style="width: fit-content" ref="passwordRef" @keyup.enter="focusNext('confirmPasswordRef')" show-password />
-      <el-input v-model="confirmPassword" size="large" placeholder="請再次確認密碼" type="password" style="width: fit-content" ref="confirmPasswordRef" @keyup.enter="register" show-password />
-      <div class="signin-button">
-        <el-button @click="$router.back()" type="primary" plain size="large">返回登入頁</el-button>
-        <el-button type="primary" size="large" @click="register" :loading="isSubmitting">完成填寫並送出</el-button>
-      </div>
-    </div>
-  </main>
-</template>
+  <v-container fluid class="fill-height">
+    <v-row justify="center" align="center" class="fill-height">
+      <v-col cols="12" sm="8" md="6" lg="5">
+        <v-card rounded="xl" elevation="6" class="pa-2">
+          <v-card-title class="text-h5 text-center pt-6 pb-2">會員註冊</v-card-title>
+          <v-card-text class="pt-4">
+            <v-text-field
+              v-model="name"
+              label="使用者名稱"
+              variant="outlined"
+              prepend-inner-icon="mdi-account-outline"
+              autocomplete="username"
+              @keyup.enter="focusNext(emailRef)"
+              class="mb-2"
+              autofocus
+            />
+            <v-text-field
+              ref="emailRef"
+              v-model="email"
+              label="電子郵件"
+              variant="outlined"
+              prepend-inner-icon="mdi-email-outline"
+              type="email"
+              autocomplete="email"
+              @keyup.enter="focusNext(passwordRef)"
+              class="mb-2"
+            />
+            <v-text-field
+              ref="passwordRef"
+              v-model="password"
+              label="密碼"
+              variant="outlined"
+              prepend-inner-icon="mdi-lock-outline"
+              :type="showPassword ? 'text' : 'password'"
+              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="showPassword = !showPassword"
+              autocomplete="new-password"
+              @keyup.enter="focusNext(confirmPasswordRef)"
+              class="mb-2"
+            />
+            <v-text-field
+              ref="confirmPasswordRef"
+              v-model="confirmPassword"
+              label="確認密碼"
+              variant="outlined"
+              prepend-inner-icon="mdi-lock-check-outline"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              :append-inner-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="showConfirmPassword = !showConfirmPassword"
+              autocomplete="new-password"
+              @keyup.enter="register"
+            />
+          </v-card-text>
+          <v-card-actions class="flex-column px-6 pb-6 ga-3">
+            <v-btn
+              block
+              variant="tonal"
+              color="primary"
+              size="large"
+              rounded="lg"
+              :loading="isSubmitting"
+              @click="register"
+            >
+              完成填寫並送出
+            </v-btn>
+            <v-btn
+              block
+              variant="outlined"
+              color="primary"
+              size="large"
+              rounded="lg"
+              @click="router.back()"
+            >
+              返回登入頁
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 
-<style scoped>
-main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-.signin-block {
-  width: 60%;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  padding: 20px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-.signin-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-</style>
+  <v-snackbar v-model="snackbar.show" :color="snackbar.color" location="top" timeout="3000">
+    {{ snackbar.text }}
+  </v-snackbar>
+</template>
