@@ -7,5 +7,5 @@ export function getImageUrl(image) {
   if (!image) return "";
   return image.startsWith("http")
     ? image
-    : `http://localhost:8080/storage/${image}`;
+    : `${import.meta.env.VITE_API_URL}/storage/${image}`;
 }

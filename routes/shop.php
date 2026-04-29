@@ -3,15 +3,15 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
-use App\Models\Product;
 use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 // 公開路由
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
-Route::get('/categories', [ProductController::class, 'categories']);
-Route::get('/products', fn () => Product::with('category')->where('is_active', 1)->get());
+Route::get('/categories',    [ProductController::class, 'categories']);
+Route::get('/products',      [ProductController::class, 'frontIndex']);
+Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
 
 // 需要登入的路由
 Route::middleware('auth')->group(function () {

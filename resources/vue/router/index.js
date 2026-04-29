@@ -16,6 +16,16 @@ const routes = [
     name: 'Register',
     component: () => import('../views/front/Register.vue')
   },
+  {
+    path: '/shop',
+    name: 'Shop',
+    component: () => import('../views/front/shop/Shop.vue')
+  },
+  {
+    path: '/shop/:id',
+    name: 'ProductDetail',
+    component: () => import('../views/front/shop/ProductDetail.vue')
+  },
   // 後臺路由
   {
     path: '/admin',

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:8999',   // Laravel 後端位址
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,              // 允許跨域請求時攜帶 cookie（session 和 XSRF-TOKEN 都需要）
   headers: {
     'Content-Type': 'application/json',

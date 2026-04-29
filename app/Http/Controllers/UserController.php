@@ -10,12 +10,7 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 // 這裡的 UserController 是一個新的控制器，主要負責處理與使用者相關的 API 請求，列出所有使用者、更新使用者資料等。它繼承了 Controller 類別，可以使用 Laravel 提供的基本功能。
 {
-    // 列出所有使用者
-    public function index()
-    {
-        $users = User::all();
-        return response()->json($users);
-    }
+
 
     // 實作更新方法
     public function update(Request $request)
@@ -23,7 +18,7 @@ class UserController extends Controller
 
         // 告訴編輯器這是 User Model
         /** @var \App\Models\User $user */
-        
+
         // 取得目前登入的使用者
         $user = auth()->user();
 

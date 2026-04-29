@@ -148,3 +148,129 @@ const handleLogout = async () => {
     {{ snackbar.text }}
   </v-snackbar>
 </template>
+
+<style scoped>
+/* ── Desktop ── */
+.nav-desktop {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+.nav-mobile {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+@media (max-width: 767px) {
+    .nav-desktop {
+        display: none;
+    }
+    .nav-mobile {
+        display: block;
+    }
+}
+
+/* ── Mobile bar ── */
+.nav-mobile-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    height: 56px;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    position: relative;
+    z-index: 100;
+}
+
+.nav-brand {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #303133;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* ── 漢堡按鈕 ── */
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+}
+
+.bar {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #303133;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    transform-origin: center;
+}
+
+/* 開啟時變成 X */
+.hamburger.is-open .bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.hamburger.is-open .bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+.hamburger.is-open .bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── 下拉選單 ── */
+.nav-mobile-menu {
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.nav-mobile-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    font-size: 15px;
+    color: #303133;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.nav-mobile-item:last-child {
+    border-bottom: none;
+}
+
+.nav-mobile-item:hover,
+.nav-mobile-item.is-active {
+    background: #f0f7ff;
+    color: #409eff;
+}
+
+/* ── 滑入動畫 ── */
+.slide-down-enter-active,
+.slide-down-leave-active {
+    overflow: hidden;
+    max-height: 400px;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+}
+.slide-down-enter-from,
+.slide-down-leave-to {
+    max-height: 0;
+    opacity: 0;
+}
+</style>

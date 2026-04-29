@@ -17,6 +17,24 @@ class ProductController extends Controller
         return Product::with('category')->get();
     }
 
+    // 取得上架商品列表（前台，支援分類篩選與分頁）
+    public function frontIndex(Request $request)
+    {
+        // 限制上限為100，避免全部撈光資料
+        $perPage = min((int) $request->input('per_page', 12), 100);
+
+        return Product::with('category')
+            ->where('is_active', 1)
+            ->when($request->category_id, fn ($q, $id) => $q->where('category_id', $id))
+            ->paginate($perPage);
+    }
+
+    // 取得單一上架商品（前台）
+    public function frontShow($id)
+    {
+        return Product::where('is_active', 1)->findOrFail($id);
+    }
+
     // 取得所有分類
     public function categories()
     {

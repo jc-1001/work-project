@@ -13,6 +13,13 @@ Route::get('/', fn () => view('app'));
 Route::get('/login', fn () => view('app'));
 Route::get('/register', fn () => view('app'));
 
+// 前台商城列表
+Route::get('/shop', fn () => view('app'));
+
+// 前台商品詳情（ID 限數字）
+Route::get('/shop/{id}', fn () => view('app'))
+    ->where('id', '[0-9]+');
+
 // 前台商品頁（ID 限數字）
 Route::get('/products/{id}', fn () => view('app'))
     ->where('id', '[0-9]+');
