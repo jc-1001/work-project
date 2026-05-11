@@ -20,3 +20,7 @@ yarn-error.log
 .vite/
 /.claude
 package-lock.json
+/storage/logs/*.log
+/bootstrap/cache/*.php
+.DS_Store
+Thumbs.db

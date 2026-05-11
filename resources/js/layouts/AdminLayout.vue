@@ -1,12 +1,12 @@
 <script setup>
-import AdminNavBar from "./components/AdminNavBar.vue";
+import AdminNavBar from "../components/AdminNavBar.vue"
 </script>
 
 <template>
   <v-app>
     <AdminNavBar />
     <v-main>
-      <router-view />
+      <slot />
     </v-main>
   </v-app>
 </template>

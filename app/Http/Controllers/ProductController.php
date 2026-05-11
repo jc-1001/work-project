@@ -14,37 +14,52 @@ class ProductController extends Controller
     // 取得所有商品（後台，含下架）
     public function index()
     {
-        return Product::with('category')->get();
+        return response()->json([
+            'products' => Product::with('category')->get(),
+        ]);
     }
 
     // 取得上架商品列表（前台，支援分類篩選與分頁）
     public function frontIndex(Request $request)
     {
         // 限制上限為100，避免全部撈光資料
-        $perPage = min((int) $request->input('per_page', 12), 100);
-
-        return Product::with('category')
+        $perPage   = min((int) $request->input('per_page', 12), 100);
+        $paginated = Product::with('category')
             ->where('is_active', 1)
             ->when($request->category_id, fn ($q, $id) => $q->where('category_id', $id))
             ->paginate($perPage);
+
+        return response()->json([
+            'data'         => $paginated->items(),
+            'total'        => $paginated->total(),
+            'current_page' => $paginated->currentPage(),
+            'per_page'     => $paginated->perPage(),
+            'last_page'    => $paginated->lastPage(),
+        ]);
     }
 
     // 取得單一上架商品（前台）
     public function frontShow($id)
     {
-        return Product::where('is_active', 1)->findOrFail($id);
+        return response()->json([
+            'product' => Product::where('is_active', 1)->findOrFail($id),
+        ]);
     }
 
     // 取得所有分類
     public function categories()
     {
-        return Category::all();
+        return response()->json([
+            'categories' => Category::all(),
+        ]);
     }
 
     // 取得單一商品（後台，不過濾 is_active）
     public function show($id)
     {
-        return Product::with('category')->findOrFail($id);
+        return response()->json([
+            'product' => Product::with('category')->findOrFail($id),
+        ]);
     }
 
     // 更新商品
@@ -97,7 +112,9 @@ class ProductController extends Controller
             }
         }
 
-        return response()->json($product);
+        return response()->json([
+            'product' => $product,
+        ]);
     }
 
     // 新增商品
@@ -128,6 +145,8 @@ class ProductController extends Controller
             'is_active'   => $request->input('is_active', true),
         ]);
 
-        return response()->json($product, 201);
+        return response()->json([
+            'product' => $product,
+        ], 201);
     }
 }

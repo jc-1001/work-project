@@ -2,16 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function showLogin()
+    {
+        return view('auth.login');
+    }
+
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
     // 註冊
     public function register(Request $request)
     {
@@ -30,7 +38,7 @@ class AuthController extends Controller
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
         ]);
 
         $user->roles()->attach($userRoleId);
@@ -59,10 +67,24 @@ class AuthController extends Controller
             ]);
         }
 
-        $request->session()->regenerate();
-
         /** @var User $user */
         $user = Auth::user();
+
+        if (!$user->is_active) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => ['帳號已停用，請聯絡管理員'],
+            ]);
+        }
+
+        if ($user->isAdmin()) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => ['管理員帳號請由後台登入'],
+            ]);
+        }
+
+        $request->session()->regenerate();
 
         // 隱藏欄位獲取部分欄位
         return response()->json([
@@ -90,6 +112,13 @@ class AuthController extends Controller
         $user = $request->user();
 
         // 隱藏欄位獲取部分欄位
-        return response()->json($user->only(['id', 'name', 'email']));
+        return response()->json([
+            'user' => [
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'email'    => $user->email,
+                'is_admin' => $user->isAdmin(),
+            ],
+        ]);
     }
 }

@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
-import api from "../../../api"
+import api from "../../../bootstrap"
 import { getImageUrl } from "../../../utils/image"
+import FrontLayout from "../../../layouts/FrontLayout.vue"
 
 const loading = ref(false)
 const products = ref([])
@@ -11,12 +11,11 @@ const selectedCategoryId = ref(null)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(12)
-const router = useRouter()
 
 const fetchCategories = async () => {
   try {
     const res = await api.get("/categories")
-    categories.value = res.data
+    categories.value = res.data.categories
   } catch (error) {
     console.error("無法抓取分類資料:", error)
   }
@@ -56,11 +55,12 @@ onMounted(() => {
 })
 
 const goToProductDetail = (id) => {
-  router.push({ name: "ProductDetail", params: { id } })
+  window.location.href = '/shop/' + id
 }
 </script>
 
 <template>
+  <FrontLayout>
   <!-- 頁面 Banner -->
   <div class="shop-banner">
     <h1 class="shop-banner__title">商城</h1>
@@ -155,6 +155,7 @@ const goToProductDetail = (id) => {
     class="my-4"
     @update:model-value="onPageChange"
   />
+  </FrontLayout>
 </template>
 
 <style scoped>

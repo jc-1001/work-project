@@ -1,19 +1,22 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from "vue"
-import { useRouter } from "vue-router"
-import api from "../../api"
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue"
+import api from "../../bootstrap"
+import { useAuth } from "../../composables/useAuth"
 import { getImageUrl } from "../../utils/image"
+import FrontLayout from "../../layouts/FrontLayout.vue"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import Lenis from "lenis"
 
 gsap.registerPlugin(ScrollTrigger)
 
+const window = globalThis
+
 let lenis = null
 let lenisTicker = null
 
-const router = useRouter()
-const isLoggedIn = ref(false)
+const { fetchUser, user } = useAuth()
+const isLoggedIn = computed(() => !!user.value)
 const hotProducts = ref([])
 const activeName = ref(undefined)
 const snackbar = ref({ show: false, text: "", color: "success" })
@@ -90,14 +93,6 @@ function initStaticAnimations() {
   })
 }
 
-const checkLoginStatus = async () => {
-  try {
-    await api.get("/me")
-    isLoggedIn.value = true
-  } catch {
-    isLoggedIn.value = false
-  }
-}
 
 // 熱門商品(抓前五筆)
 const fetchHotProducts = async () => {
@@ -124,9 +119,8 @@ watch(hotProducts, async () => {
 }, { once: true })
 
 onMounted(async () => {
-  checkLoginStatus()
+  fetchUser()
   fetchHotProducts()
-  window.addEventListener("login-status-changed", checkLoginStatus)
 
   // Lenis 捲動初始化
   // duration ── 慣性滑動時間（秒），越大越慢越絲滑
@@ -150,7 +144,6 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener("login-status-changed", checkLoginStatus)
   ScrollTrigger.getAll().forEach((t) => t.kill())
   gsap.ticker.remove(lenisTicker)
   lenis?.destroy()
@@ -161,17 +154,15 @@ onUnmounted(() => {
 const handleLogout = async () => {
   try {
     await api.post("/logout")
-    notify("登出成功")
+    window.location.href = "/login"
   } catch {
     notify("登出失敗，請稍後再試", "error")
-  } finally {
-    isLoggedIn.value = false
-    window.dispatchEvent(new Event("login-status-changed"))
   }
 }
 </script>
 
 <template>
+  <FrontLayout>
   <main>
     <!-- Hero -->
     <section class="hero">
@@ -194,15 +185,15 @@ const handleLogout = async () => {
           <p class="hero-slogan">精選好物，一站購齊，品質有保證</p>
           <div class="hero-actions">
             <template v-if="!isLoggedIn">
-              <v-btn class="btn-primary" size="large" rounded="xl" @click="router.push('/login')">
+              <v-btn class="btn-primary" size="large" rounded="xl" @click="window.location.href = '/login'">
                 立即加入
               </v-btn>
-              <v-btn class="btn-ghost" size="large" rounded="xl" @click="router.push('/shop')">
+              <v-btn class="btn-ghost" size="large" rounded="xl" @click="window.location.href = '/shop'">
                 瀏覽商品
               </v-btn>
             </template>
             <template v-else>
-              <v-btn class="btn-primary" size="large" rounded="xl" @click="router.push('/shop')">
+              <v-btn class="btn-primary" size="large" rounded="xl" @click="window.location.href = '/shop'">
                 前往商城
               </v-btn>
               <v-btn class="btn-ghost" size="large" rounded="xl" @click="handleLogout">
@@ -241,7 +232,7 @@ const handleLogout = async () => {
             v-for="product in hotProducts"
             :key="product.id"
             class="product-card"
-            @click="router.push(`/shop/${product.id}`)"
+            @click="window.location.href = '/shop/' + product.id"
           >
             <div class="product-img-wrap">
               <v-img :src="getImageUrl(product.image)" cover class="product-img" />
@@ -253,7 +244,7 @@ const handleLogout = async () => {
           </div>
         </div>
         <div class="section-footer">
-          <v-btn class="btn-outline" size="large" rounded="xl" @click="router.push('/shop')">
+          <v-btn class="btn-outline" size="large" rounded="xl" @click="window.location.href = '/shop'">
             查看全部商品
           </v-btn>
         </div>
@@ -298,8 +289,8 @@ const handleLogout = async () => {
         <div class="footer-links">
           <h4>快速連結</h4>
           <ul>
-            <li @click="router.push('/login')">會員登入</li>
-            <li @click="router.push('/shop')">商城</li>
+            <li @click="window.location.href = '/login'">會員登入</li>
+            <li @click="window.location.href = '/shop'">商城</li>
           </ul>
         </div>
       </div>
@@ -310,6 +301,7 @@ const handleLogout = async () => {
   <v-snackbar v-model="snackbar.show" :color="snackbar.color" location="top" timeout="3000">
     {{ snackbar.text }}
   </v-snackbar>
+  </FrontLayout>
 </template>
 
 <style scoped>

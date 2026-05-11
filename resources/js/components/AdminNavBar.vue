@@ -1,17 +1,25 @@
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from "vue"
+import api from "../bootstrap"
 
-const router = useRouter();
+const currentPath = window.location.pathname
 
 const menuItems = ref([
   { name: "會員列表", icon: "mdi-account-group", path: "/admin/user" },
   { name: "商品管理", icon: "mdi-package-variant", path: "/admin/products" },
   { name: "訂單管理", icon: "mdi-clipboard-list", path: "/admin/orders" },
-]);
+])
 
-function logout() {
-  router.push("/admin");
+const navigate = (path) => {
+  window.location.href = path
+}
+
+async function logout() {
+  try {
+    await api.post("/logout")
+  } finally {
+    window.location.href = "/admin/login"
+  }
 }
 </script>
 
@@ -22,7 +30,8 @@ function logout() {
       :key="item.path"
       variant="text"
       :prepend-icon="item.icon"
-      :to="item.path"
+      :active="currentPath === item.path"
+      @click="navigate(item.path)"
     >{{ item.name }}</v-btn>
 
     <v-spacer />

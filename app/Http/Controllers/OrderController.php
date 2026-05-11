@@ -18,7 +18,9 @@ class OrderController extends Controller
                        ->orderBy('created_at', 'desc')
                        ->get();
 
-        return response()->json($orders);
+        return response()->json([
+            'orders' => $orders,
+        ]);
     }
 
     // 取得所有訂單（後台）
@@ -28,7 +30,9 @@ class OrderController extends Controller
                        ->orderBy('created_at', 'desc')
                        ->get();
 
-        return response()->json($orders);
+        return response()->json([
+            'orders' => $orders,
+        ]);
     }
 
     // 取得單一訂單（後台）
@@ -37,7 +41,9 @@ class OrderController extends Controller
         $order = Order::with(['user', 'items.product'])
                       ->findOrFail($id);
 
-        return response()->json($order);
+        return response()->json([
+            'order' => $order,
+        ]);
     }
 
     public function store(Request $request)
@@ -46,7 +52,7 @@ class OrderController extends Controller
             'customer.name'    => 'required|string',
             'customer.phone'   => 'required|string',
             'customer.address' => 'required|string',
-            'paymentMethod'    => 'required|string',
+            'paymentMethod'    => 'required|string|in:credit_card,atm,cvs,cod',
             'bill'             => 'nullable|string',
             'taxId'            => 'nullable|string',
             'carrier'          => 'nullable|string',
@@ -116,8 +122,11 @@ class OrderController extends Controller
             });
 
         } catch (\Exception $e) {
+            $userFacingMessages = ['不存在或已下架', '庫存不足'];
+            $isUserFacing = collect($userFacingMessages)->contains(fn($k) => str_contains($e->getMessage(), $k));
+
             return response()->json([
-                'message' => $e->getMessage(),
+                'message' => $isUserFacing ? $e->getMessage() : '訂單建立失敗，請稍後再試',
             ], 422);
         }
     }

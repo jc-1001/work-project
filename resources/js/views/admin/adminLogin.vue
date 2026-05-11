@@ -1,9 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-import api from "../../api.js";
-
-const router = useRouter();
+import api from "../../bootstrap";
 const account = ref("");
 const password = ref("");
 const showPwd = ref(false);
@@ -26,15 +23,13 @@ async function login() {
   }
   loading.value = true;
   try {
-    await api.post("/admin/login", {
+    const res = await api.post("/admin/login", {
       email: account.value,
       password: password.value,
     });
-    showMessage("登入成功", "success");
-    router.push("/admin/products");
+    window.location.href = res.data.redirect ?? "/admin/products";
   } catch (err) {
     showMessage(err.response?.data?.message || "帳號或密碼錯誤", "error");
-  } finally {
     loading.value = false;
   }
 }

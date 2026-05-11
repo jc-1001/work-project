@@ -1,36 +1,17 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue"
-import { useRoute, useRouter } from "vue-router"
-import api from "../api"
+import { computed, ref } from "vue"
+import api from "../bootstrap"
+import { useAuth } from "../composables/useAuth"
 
-const route = useRoute()
-const router = useRouter()
-const isLoggedIn = ref(false)
-const drawer = ref(false)
-const snackbar = ref({ show: false, text: "", color: "success" })
+const { user, clearUser } = useAuth()
+const isLoggedIn  = computed(() => !!user.value)
+const currentPath = window.location.pathname
+const drawer      = ref(false)
+const snackbar    = ref({ show: false, text: "", color: "success" })
 
 const notify = (text, color = "success") => {
   snackbar.value = { show: true, text, color }
 }
-
-const checkLoginStatus = async () => {
-  try {
-    await api.get("/me")
-    isLoggedIn.value = true
-  } catch (error) {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      isLoggedIn.value = false
-    }
-  }
-}
-
-onMounted(() => {
-  checkLoginStatus()
-  window.addEventListener("login-status-changed", checkLoginStatus)
-})
-onUnmounted(() => {
-  window.removeEventListener("login-status-changed", checkLoginStatus)
-})
 
 const menuItems = [
   { name: "首頁",    icon: "mdi-home",     path: "/" },
@@ -43,6 +24,10 @@ const displayMenuItems = computed(() =>
   isLoggedIn.value ? menuItems : menuItems.filter(item => !item.requiresAuth)
 )
 
+const navigate = (path) => {
+  window.location.href = path
+}
+
 const handleLogout = async () => {
   drawer.value = false
   try {
@@ -51,8 +36,8 @@ const handleLogout = async () => {
   } catch {
     notify("登出失敗，請稍後再試", "error")
   } finally {
-    isLoggedIn.value = false
-    router.push("/")
+    clearUser()
+    window.location.href = "/"
   }
 }
 </script>
@@ -73,10 +58,9 @@ const handleLogout = async () => {
         :key="item.path"
         :prepend-icon="item.icon"
         :title="item.name"
-        :to="item.path"
-        :active="route.path === item.path"
+        :active="currentPath === item.path"
         rounded="lg"
-        @click="drawer = false"
+        @click="navigate(item.path)"
       />
       <v-list-item
         v-if="isLoggedIn"
@@ -89,9 +73,8 @@ const handleLogout = async () => {
         v-else
         prepend-icon="mdi-login"
         title="登入"
-        to="/login"
         rounded="lg"
-        @click="drawer = false"
+        @click="navigate('/login')"
       />
     </v-list>
   </v-navigation-drawer>
@@ -114,10 +97,10 @@ const handleLogout = async () => {
           v-for="item in displayMenuItems"
           :key="item.path"
           :prepend-icon="item.icon"
-          :to="item.path"
           variant="text"
           color="white"
-          :active="route.path === item.path"
+          :active="currentPath === item.path"
+          @click="navigate(item.path)"
         >
           {{ item.name }}
         </v-btn>
@@ -136,7 +119,7 @@ const handleLogout = async () => {
           prepend-icon="mdi-login"
           variant="text"
           color="white"
-          to="/login"
+          @click="navigate('/login')"
         >
           登入
         </v-btn>

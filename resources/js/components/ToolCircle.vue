@@ -24,31 +24,35 @@ function openLink() {
   <div class="fab-container">
     <!-- 展開的子按鈕 -->
     <transition-group name="fab">
-      <template v-if="isOpen">
-        <v-tooltip key="top" text="回到頂部" location="left">
+      <div v-if="isOpen" key="top">
+        <v-tooltip text="回到頂部" location="left">
           <template #activator="{ props }">
             <div class="fab-item" v-bind="props" @click="scrollToTop">
               <v-icon icon="mdi-arrow-up" size="20" />
             </div>
           </template>
         </v-tooltip>
+      </div>
 
-        <v-tooltip key="service" text="線上客服" location="left">
+      <div v-if="isOpen" key="service">
+        <v-tooltip text="線上客服" location="left">
           <template #activator="{ props }">
             <div class="fab-item" v-bind="props" @click="openService">
               <v-icon icon="mdi-headset" size="20" />
             </div>
           </template>
         </v-tooltip>
+      </div>
 
-        <v-tooltip key="link" text="聯絡我們" location="left">
+      <div v-if="isOpen" key="link">
+        <v-tooltip text="聯絡我們" location="left">
           <template #activator="{ props }">
             <div class="fab-item" v-bind="props" @click="openLink">
               <v-icon icon="mdi-link" size="20" />
             </div>
           </template>
         </v-tooltip>
-      </template>
+      </div>
     </transition-group>
 
     <!-- 主按鈕 -->

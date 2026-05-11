@@ -14,7 +14,7 @@ class EnsureIsAdmin
         if (!$request->user()?->isAdmin()) {
             return $request->expectsJson()
                 ? response()->json(['message' => '無權限'], 403)
-                : redirect('/admin/login');
+                : redirect()->route('admin.login');
         }
 
         return $next($request);
