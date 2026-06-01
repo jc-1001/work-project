@@ -19,6 +19,11 @@ class PageController extends Controller
         return view('frontend.shop-show', ['id' => $id]);
     }
 
+    public function favorite()
+    {
+        return view('frontend.favorite-index');
+    }
+
     public function adminLogin()
     {
         return view('auth.admin-login');
