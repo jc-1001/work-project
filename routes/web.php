@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout',     [AuthController::class, 'logout']);
     Route::get('/me',          [AuthController::class, 'me']);
     Route::put('/user/update', [UserController::class, 'update']);
+
+    Route::get('/orders/latest', [OrderController::class, 'latest']);
+    Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:5,1');
 });
 
 /*
@@ -47,14 +51,18 @@ Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id
 */
 Route::get('/',          [PageController::class, 'home'])->name('front.home');
 Route::get('/shop',      [PageController::class, 'shopIndex'])->name('front.shop');
-Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');
+Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');  
+
 
 /*
 |--------------------------------------------------------------------------
 | 前台 Blade 頁面（需要登入，未登入自動轉 /login）
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {});
+Route::middleware('auth')->group(function () {
+    Route::get('/cart',  [PageController::class, 'cart'])->name('front.cart');
+    Route::get('/order', [PageController::class, 'order'])->name('front.order');
+});
 
 /*
 |--------------------------------------------------------------------------

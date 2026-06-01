@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    public function latest()
+    {
+        $order = Order::where('user_id', auth()->id())
+                      ->orderBy('created_at', 'desc')
+                      ->first(['name', 'phone', 'address']);
+
+        return response()->json(['order' => $order]);
+    }
+
     public function index()
     {
         $orders = Order::where('user_id', auth()->id())
@@ -22,40 +31,19 @@ class OrderController extends Controller
         ]);
     }
 
-    public function adminIndex()
-    {
-        $orders = Order::with(['user', 'items.product'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return response()->json([
-            'orders' => $orders,
-        ]);
-    }
-
-    public function adminShow($id)
-    {
-        $order = Order::with(['user', 'items.product'])
-            ->findOrFail($id);
-
-        return response()->json([
-            'order' => $order,
-        ]);
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
             'customer.name'    => 'required|string',
             'customer.phone'   => 'required|string',
             'customer.address' => 'required|string',
-            'paymentMethod'    => 'required|string|in:credit_card,atm,cvs,cod',
+            'paymentMethod'    => 'required|string|in:Credit card,ATM,cvs,cod',
             'bill'             => 'nullable|string',
             'taxId'            => 'nullable|string',
             'carrier'          => 'nullable|string',
             'items'            => 'required|array|min:1',
             'items.*.id'       => 'required|integer|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.quantity' => 'required|integer|min:1|max:10',
         ]);
 
         try {
