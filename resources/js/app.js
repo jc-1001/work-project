@@ -11,6 +11,8 @@ import ShopShow   from './views/front/shop/ProductDetail.vue'
 import Login      from './views/front/Login.vue'
 import Register   from './views/front/Register.vue'
 import AdminLogin from './views/admin/adminLogin.vue'
+import ForgotPassword from './views/front/ForgotPassword.vue'
+import ResetPassword from './views/front/ResetPassword.vue'
 
 const pageMap = {
     'home':        Home,
@@ -19,6 +21,8 @@ const pageMap = {
     'login':       Login,
     'register':    Register,
     'admin-login': AdminLogin,
+    'forgot-password': ForgotPassword,
+    'reset-password': ResetPassword,
 }
 
 const vuetify = createVuetify()

@@ -3,7 +3,6 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,10 +10,18 @@ use Illuminate\Support\Facades\Route;
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
-    Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
-    Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
-    Route::get('/admin/login', [PageController::class, 'adminLogin'])->name('admin.login');
+    Route::get('/login',           [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/register',        [AuthController::class, 'showRegister'])->name('register');
+    Route::get('/admin/login',     [PageController::class, 'adminLogin'])->name('admin.login');
+
+    
+    Route::get('/forgot-password', [PageController::class, 'forgotPassword']);
+    Route::get('/reset-password',  [PageController::class, 'resetPassword']);
+    
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
+    Route::post('/reset-password',  [AuthController::class, 'resetPassword'])->middleware('throttle:3,1');
 });
 
 Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
@@ -36,18 +43,13 @@ Route::middleware('auth')->group(function () {
 | 前台公開 API（無需登入）
 |--------------------------------------------------------------------------
 */
-Route::get('/categories',    [ProductController::class, 'categories']);
-Route::get('/products',      [ProductController::class, 'frontIndex']);
-Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
 
 /*
 |--------------------------------------------------------------------------
 | 前台 Blade 頁面（公開，不需登入）
 |--------------------------------------------------------------------------
 */
-Route::get('/',          [PageController::class, 'home'])->name('front.home');
-Route::get('/shop',      [PageController::class, 'shopIndex'])->name('front.shop');
-Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');
+Route::get('/', [PageController::class, 'home'])->name('front.home');
 
 /*
 |--------------------------------------------------------------------------
