@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    // 取得所有商品（後台，含下架）
     public function index()
     {
         return response()->json([
@@ -19,14 +18,13 @@ class ProductController extends Controller
         ]);
     }
 
-    // 取得上架商品列表（前台，支援分類篩選與分頁）
     public function frontIndex(Request $request)
     {
-        // 限制上限為100，避免全部撈光資料
         $perPage   = min((int) $request->input('per_page', 12), 100);
         $paginated = Product::with('category')
             ->where('is_active', 1)
             ->when($request->category_id, fn ($q, $id) => $q->where('category_id', $id))
+            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->paginate($perPage);
 
         return response()->json([
@@ -38,7 +36,6 @@ class ProductController extends Controller
         ]);
     }
 
-    // 取得單一上架商品（前台）
     public function frontShow($id)
     {
         return response()->json([
@@ -46,7 +43,6 @@ class ProductController extends Controller
         ]);
     }
 
-    // 取得所有分類
     public function categories()
     {
         return response()->json([
@@ -54,7 +50,6 @@ class ProductController extends Controller
         ]);
     }
 
-    // 取得單一商品（後台，不過濾 is_active）
     public function show($id)
     {
         return response()->json([
@@ -62,7 +57,6 @@ class ProductController extends Controller
         ]);
     }
 
-    // 更新商品
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
@@ -77,11 +71,8 @@ class ProductController extends Controller
             'is_active'   => 'boolean',
         ]);
 
-        // 在 update 前先存 $oldImagePath
-        // 先記錄舊圖路徑，update() 後會同步為新值
         $oldImagePath = $product->image;
 
-        // 先上傳新圖片（暫存路徑），確保 DB 更新成功後才刪除舊檔
         $newImagePath = null;
         if ($request->hasFile('image')) {
             $newImagePath = $request->file('image')->store('products', 'public');
@@ -98,12 +89,10 @@ class ProductController extends Controller
                 'is_active'   => $request->input('is_active', true),
             ]);
         } catch (\Throwable $e) {
-            // DB 失敗時清除剛上傳的新圖，避免孤立檔案
             if ($newImagePath) Storage::disk('public')->delete($newImagePath);
             throw $e;
         }
 
-        // DB 成功後才刪除舊圖，刪除失敗僅記錄 warning，不影響回應
         if ($newImagePath && $oldImagePath) {
             try {
                 Storage::disk('public')->delete($oldImagePath);
@@ -117,7 +106,6 @@ class ProductController extends Controller
         ]);
     }
 
-    // 新增商品
     public function store(Request $request)
     {
         $request->validate([
