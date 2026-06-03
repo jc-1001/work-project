@@ -18,7 +18,7 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    
+    { name: "訂單管理", icon: "mdi-clipboard-list", path: "/admin/orders" },
 ]);
 
 const navigate = (path) => {

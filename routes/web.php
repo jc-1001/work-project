@@ -5,12 +5,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
     Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
@@ -63,4 +65,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/me',        [AdminAuthController::class, 'me']);
     Route::post('/logout',   [AdminAuthController::class, 'logout']);
 
+/*
+|--------------------------------------------------------------------------
+| 後台 Blade 頁面（需要登入，未登入自動轉 /admin/login）
+|--------------------------------------------------------------------------
+*/
+
+    // 訂單管理頁面
+    Route::get('/orders',      [PageController::class, 'adminOrdersIndex']);
+    Route::get('/orders/{id}', [PageController::class, 'adminOrdersShow'])->where('id', '[0-9]+');
+});
+/*
+|--------------------------------------------------------------------------
+| 後台管理 API（auth + admin，由 Vue 元件透過 axios 呼叫）
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
+    
+    Route::get('/orders',                      [OrderController::class, 'adminIndex']);
+    Route::get('/orders/{id}',                 [OrderController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::patch('/orders/batch-status',       [OrderController::class, 'batchUpdateStatus']);
+    Route::patch('/orders/{order}/status',     [OrderController::class, 'updateStatus']);
 });

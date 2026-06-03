@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -41,6 +42,64 @@ class OrderController extends Controller
         return response()->json([
             'order' => $order,
         ]);
+    }
+
+    private const TRANSITIONS = [
+        'pending'  => 'shipping',
+        'shipping' => 'completed',
+    ];
+
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => ['required', Rule::in(['shipping', 'completed'])],
+        ]);
+
+        $next = self::TRANSITIONS[$order->status] ?? null;
+
+        if ($next !== $request->status) {
+            return response()->json(['message' => "狀態無法從 {$order->status} 轉換為 {$request->status}"], 422);
+        }
+
+        $order->update(['status' => $request->status]);
+
+        return response()->json(['message' => '狀態已更新', 'status' => $order->status]);
+    }
+
+    public function batchUpdateStatus(Request $request)
+    {
+        $request->validate([
+            'ids'    => 'required|array|max:100',
+            'ids.*'  => 'integer|exists:orders,id',
+            'status' => ['required', Rule::in(['shipping', 'completed'])],
+        ]);
+
+        $targetStatus = $request->status;
+        $requiredCurrent = array_search($targetStatus, self::TRANSITIONS);
+
+        if ($requiredCurrent === false) {
+            return response()->json(['message' => '無效的目標狀態'], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($request, $targetStatus, $requiredCurrent) {
+                $orders = Order::whereIn('id', $request->ids)
+                    ->lockForUpdate()
+                    ->get(['id', 'status']);
+
+                $invalidCount = $orders->where('status', '!=', $requiredCurrent)->count();
+
+                if ($invalidCount > 0) {
+                    throw new \RuntimeException("有 {$invalidCount} 筆訂單狀態不符，無法批次更新");
+                }
+
+                Order::whereIn('id', $request->ids)->update(['status' => $targetStatus]);
+            });
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['message' => '批次更新成功']);
     }
 
     public function store(Request $request)
@@ -91,7 +150,7 @@ class OrderController extends Controller
                     'address'        => $validated['customer']['address'],
                     'total_amount'   => $totalAmount,
                     'payment_method' => $validated['paymentMethod'],
-                    'invoice_type'   => $validated['bill'] ?? '個人電子發票',
+                    'invoice_type'   => $validated['bill'] ?? Order::DEFAULT_INVOICE_TYPE,
                     'tax_id'         => $validated['taxId'] ?? null,
                     'carrier'        => $validated['carrier'] ?? null,
                 ]);
