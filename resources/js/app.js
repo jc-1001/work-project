@@ -11,14 +11,20 @@ import ShopShow   from './views/front/shop/ProductDetail.vue'
 import Login      from './views/front/Login.vue'
 import Register   from './views/front/Register.vue'
 import AdminLogin from './views/admin/adminLogin.vue'
+import AdminProducts  from './views/admin/products.vue'
+import AdminProductShow from './views/admin/productDetail.vue'
+import AdminProductNew from './views/admin/productNew.vue'
 
 const pageMap = {
     'home':        Home,
     'shop-index':  ShopIndex,
     'shop-show':   ShopShow,
-    'login':       Login,
-    'register':    Register,
-    'admin-login': AdminLogin,
+    'login':            Login,
+    'register':         Register,
+    'admin-login':      AdminLogin,
+    'admin-products':   AdminProducts,
+    'admin-products-show': AdminProductShow,
+    'admin-products-store': AdminProductNew,
 }
 
 const vuetify = createVuetify()

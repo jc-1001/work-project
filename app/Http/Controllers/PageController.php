@@ -23,4 +23,20 @@ class PageController extends Controller
     {
         return view('auth.admin-login');
     }
+
+    public function adminProductsIndex()
+    {
+        return view('admin.products-index');
+    }
+
+    public function adminProductsCreate()
+    {
+        return view('admin.products-store');
+    }
+
+    public function adminProductsShow(int $id)
+    {
+        return view('admin.products-show', ['id' => $id]);
+    }
+
 }

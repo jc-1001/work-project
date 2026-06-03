@@ -18,7 +18,7 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    
+    { name: "商品管理",  icon: "mdi-package-variant",  path: "/admin/products" },
 ]);
 
 const navigate = (path) => {
