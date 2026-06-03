@@ -10,36 +10,33 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    // 取得目前登入使用者的所有訂單（前台）
     public function index()
     {
         $orders = Order::where('user_id', auth()->id())
-                       ->with('items.product')
-                       ->orderBy('created_at', 'desc')
-                       ->get();
+            ->with('items.product')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
             'orders' => $orders,
         ]);
     }
 
-    // 取得所有訂單（後台）
     public function adminIndex()
     {
         $orders = Order::with(['user', 'items.product'])
-                       ->orderBy('created_at', 'desc')
-                       ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
             'orders' => $orders,
         ]);
     }
 
-    // 取得單一訂單（後台）
     public function adminShow($id)
     {
         $order = Order::with(['user', 'items.product'])
-                      ->findOrFail($id);
+            ->findOrFail($id);
 
         return response()->json([
             'order' => $order,
@@ -66,14 +63,12 @@ class OrderController extends Controller
 
                 $itemIds = collect($validated['items'])->pluck('id');
 
-                // 鎖定商品列，防止並發超賣
                 $products = Product::whereIn('id', $itemIds)
-                                   ->where('is_active', 1)
-                                   ->lockForUpdate()
-                                   ->get()
-                                   ->keyBy('id');
+                    ->where('is_active', 1)
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
 
-                // 庫存檢查
                 foreach ($validated['items'] as $item) {
                     $product = $products->get($item['id']);
                     if (!$product) {
@@ -84,12 +79,10 @@ class OrderController extends Controller
                     }
                 }
 
-                // 後端計算總金額，不信任前端傳入的金額
                 $totalAmount = collect($validated['items'])->sum(function ($item) use ($products) {
                     return $products->get($item['id'])->price * $item['quantity'];
                 });
 
-                // 建立訂單主檔
                 $order = Order::create([
                     'user_id'        => auth()->id(),
                     'order_number'   => 'ORD' . date('YmdHis') . rand(100, 999),
@@ -103,7 +96,6 @@ class OrderController extends Controller
                     'carrier'        => $validated['carrier'] ?? null,
                 ]);
 
-                // 建立訂單明細並扣庫存
                 foreach ($validated['items'] as $item) {
                     $product = $products->get($item['id']);
                     $order->items()->create([
@@ -120,7 +112,6 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                 ], 201);
             });
-
         } catch (\Exception $e) {
             $userFacingMessages = ['不存在或已下架', '庫存不足'];
             $isUserFacing = collect($userFacingMessages)->contains(fn($k) => str_contains($e->getMessage(), $k));

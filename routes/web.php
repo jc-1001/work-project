@@ -19,7 +19,6 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
-// POST /admin/login 由 TRAIN-156 的 AdminAuthController 實作
 
 /*
 |--------------------------------------------------------------------------
@@ -30,10 +29,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout',     [AuthController::class, 'logout']);
     Route::get('/me',          [AuthController::class, 'me']);
     Route::put('/user/update', [UserController::class, 'update']);
-
-    // 訂單
-    // Route::get('/orders',  [OrderController::class, 'index']);
-    // Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:5,1');
 });
 
 /*
@@ -59,30 +54,11 @@ Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9
 | 前台 Blade 頁面（需要登入，未登入自動轉 /login）
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
-    // 之後在此新增需要登入才能看的前台頁面
-    // Route::get('/orders',  [PageController::class, 'orderIndex'])->name('front.orders');
-    // Route::get('/profile', [PageController::class, 'profile'])->name('front.profile');
-});
+Route::middleware('auth')->group(function () {});
 
 /*
 |--------------------------------------------------------------------------
 | 後台（需要 admin 角色）
-| - Blade 頁面：瀏覽器直接進入時由 PageController 回傳 HTML
-| - API 資料：Vue 組件透過 axios 呼叫同一 URL，由各 Controller 回傳 JSON
-| - 未登入 / 非 admin → EnsureIsAdmin 統一轉向 /admin/login（Blade）
-|             或回傳 403 JSON（axios）
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-
-    // 商品管理
-    // Route::get('/products',       [ProductController::class, 'index']);
-    // Route::get('/products/{id}',  [ProductController::class, 'show'])->where('id', '[0-9]+');
-    // Route::post('/products',      [ProductController::class, 'store']);
-    // Route::post('/products/{id}', [ProductController::class, 'update'])->where('id', '[0-9]+');
-
-    // 訂單管理
-    // Route::get('/orders',      [OrderController::class, 'adminIndex']);
-    // Route::get('/orders/{id}', [OrderController::class, 'adminShow'])->where('id', '[0-9]+');
-});
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {});
