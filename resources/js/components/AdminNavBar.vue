@@ -18,7 +18,7 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    
+    { name: "會員列表",  icon: "mdi-account-group",   path: "/admin/user" },
 ]);
 
 const navigate = (path) => {
