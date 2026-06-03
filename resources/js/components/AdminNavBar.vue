@@ -18,8 +18,8 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    
-]);
+  { name: "優惠碼管理", icon:"mdi-ticket-percent", path:"/admin/coupons"},  
+])
 
 const navigate = (path) => {
     window.location.href = path;

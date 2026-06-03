@@ -11,6 +11,10 @@ import ShopShow   from './views/front/shop/ProductDetail.vue'
 import Login      from './views/front/Login.vue'
 import Register   from './views/front/Register.vue'
 import AdminLogin from './views/admin/adminLogin.vue'
+import ShopOrder   from './views/front/shop/ShopOrder.vue'
+import CouponList from './views/admin/coupon/CouponList.vue'
+import CouponDetail from './views/admin/coupon/CouponDetail.vue'
+
 
 const pageMap = {
     'home':        Home,
@@ -19,6 +23,9 @@ const pageMap = {
     'login':       Login,
     'register':    Register,
     'admin-login': AdminLogin,
+    'shop-order':  ShopOrder,
+    'coupon-list': CouponList,
+    'coupon-detail': CouponDetail
 }
 
 const vuetify = createVuetify()

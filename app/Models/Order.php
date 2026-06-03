@@ -9,6 +9,8 @@ class Order extends Model
 {
     use HasFactory;
 
+    const DEFAULT_INVOICE_TYPE = '個人電子發票';
+
     protected $fillable = [
         'user_id',
         'order_number',
@@ -16,10 +18,14 @@ class Order extends Model
         'phone',
         'address',
         'total_amount',
+        'subtotal_amount',
+        'shipping_fee',
+        'discount_amount',
+        'coupon_id',
         'payment_method',
         'invoice_type',
         'tax_id',
-        'carrier'
+        'carrier',
     ];
 
     public function user()

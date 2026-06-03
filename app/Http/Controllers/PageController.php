@@ -19,8 +19,23 @@ class PageController extends Controller
         return view('frontend.shop-show', ['id' => $id]);
     }
 
+    public function order()
+    {
+        return view('frontend.shop-order');
+    }
+
     public function adminLogin()
     {
         return view('auth.admin-login');
+    }
+
+    public function couponIndex()
+    {
+        return view('admin.coupon-index');
+    }
+
+    public function couponDetail(int $id)
+    {
+        return view('admin.coupon-detail', ['id' => $id]);
     }
 }
