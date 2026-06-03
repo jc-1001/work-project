@@ -49,6 +49,45 @@ class OrderController extends Controller
         'shipping' => 'completed',
     ];
 
+    public function cancel(Order $order)
+    {
+        if ($order->status !== 'pending') {
+            return response()->json(['message' => '只有待出貨的訂單可以取消'], 422);
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->load('items.product');
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $item->product->increment('stock', $item->quantity);
+                }
+            }
+            $order->update(['status' => 'cancelled']);
+        });
+
+        return response()->json(['message' => '訂單已取消']);
+    }
+
+
+    public function return(Order $order)
+    {
+        if ($order->status !== 'completed') {
+            return response()->json(['message' => '只有已完成的訂單可以退貨'], 422);
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->load('items.product');
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $item->product->increment('stock', $item->quantity);
+                }
+            }
+            $order->update(['status' => 'returned']);
+        });
+
+        return response()->json(['message' => '訂單已退回']);
+    }
+
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([

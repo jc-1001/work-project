@@ -15,6 +15,13 @@ const batchUpdating = ref(false);
 const selected = ref([]);
 const statusFilter = ref(null);
 const advancing = ref(null);
+const cancelDialog = ref(false);
+const cancelTarget = ref(null);
+const cancelling = ref(false);
+
+const returnDialog = ref(false);
+const returnTarget = ref(null);
+const returning = ref(false);
 
 const SHIPPING_FEE = Number(import.meta.env.VITE_SHIPPING_FEE ?? 60);
 
@@ -22,6 +29,8 @@ const STATUS_CONFIG = {
     pending: { label: "訂單已成立", color: "warning" },
     shipping: { label: "出貨中", color: "info" },
     completed: { label: "已完成", color: "success" },
+    cancelled: { label: "訂單取消", color: "error" },
+    returned: { label: "已退貨", color: "indigo" },
 };
 
 const NEXT_STATUS = { pending: "shipping", shipping: "completed" };
@@ -72,7 +81,7 @@ const statusCounts = computed(() =>
             acc[o.status] = (acc[o.status] ?? 0) + 1;
             return acc;
         },
-        { pending: 0, shipping: 0, completed: 0 },
+        { pending: 0, shipping: 0, completed: 0, cancelled: 0, returned:0},
     ),
 );
 
@@ -163,6 +172,59 @@ function advanceSingle(order) {
         })
         .finally(() => {
             advancing.value = null;
+        });
+}
+
+function openCancelDialog(order) {
+    cancelTarget.value = order;
+    cancelDialog.value = true;
+}
+
+function confirmCancel() {
+    if (!cancelTarget.value) return;
+    cancelling.value = true;
+    api.patch(`/api/admin/orders/${cancelTarget.value.id}/cancel`)
+        .then(() => {
+            cancelTarget.value.status = "cancelled";
+            showMessage(`訂單 ${cancelTarget.value.order_number} 已取消`);
+        })
+        .catch((err) => {
+            showMessage(
+                err.response?.data?.message ?? "取消失敗，請稍後再試",
+                "error",
+            );
+        })
+        .finally(() => {
+            cancelling.value = false;
+            cancelDialog.value = false;
+            cancelTarget.value = null;
+        });
+}
+
+
+function openReturnDialog(order) {
+    returnTarget.value = order;
+    returnDialog.value = true;
+}
+
+function confirmReturn() {
+    if (!returnTarget.value) return;
+    returning.value = true;
+    api.patch(`/api/admin/orders/${returnTarget.value.id}/return`)
+        .then(() => {
+            returnTarget.value.status = "returned";
+            showMessage(`訂單 ${returnTarget.value.order_number} 已退回`);
+        })
+        .catch((err) => {
+            showMessage(
+                err.response?.data?.message ?? "退貨申請失敗，請稍後再試",
+                "error",
+            );
+        })
+        .finally(() => {
+            returning.value = false;
+            returnDialog.value = false;
+            returnTarget.value = null;
         });
 }
 
@@ -285,6 +347,104 @@ onMounted(fetchOrders);
                     </div>
                 </v-card-text>
             </v-card>
+
+            <v-card
+                class="stat-card cursor-pointer"
+                elevation="1"
+                rounded="lg"
+                style="width: 180px; min-width: 140px"
+                :style="
+                    statusFilter === 'completed'
+                        ? 'border: 2px solid rgb(var(--v-theme-success))'
+                        : 'border: 2px solid transparent'
+                "
+                @click="toggleStatusFilter('completed')"
+            >
+                <v-card-text class="d-flex align-center ga-3 py-3 px-4">
+                    <v-icon size="20" color="success">mdi-check-circle-outline</v-icon>
+                    <div class="d-flex flex-column ga-1">
+                        <div
+                            class="text-caption text-grey"
+                            style="line-height: 1"
+                        >
+                            已完成
+                        </div>
+                        <div
+                            class="font-weight-bold text-success"
+                            style="font-size: 20px; line-height: 1.2"
+                        >
+                            {{ statusCounts.completed }} 筆
+                        </div>
+                    </div>
+                </v-card-text>
+            </v-card>
+
+            <v-card
+                class="stat-card cursor-pointer"
+                elevation="1"
+                rounded="lg"
+                style="width: 180px; min-width: 140px"
+                :style="
+                    statusFilter === 'cancelled'
+                        ? 'border: 2px solid rgb(var(--v-theme-error))'
+                        : 'border: 2px solid transparent'
+                "
+                @click="toggleStatusFilter('cancelled')"
+            >
+                <v-card-text class="d-flex align-center ga-3 py-3 px-4">
+                    <v-icon size="20" color="error"
+                        >mdi-package-variant-closed-remove</v-icon
+                    >
+                    <div class="d-flex flex-column ga-1">
+                        <div
+                            class="text-caption text-grey"
+                            style="line-height: 1"
+                        >
+                            取消訂單
+                        </div>
+                        <div
+                            class="font-weight-bold text-error"
+                            style="font-size: 20px; line-height: 1.2"
+                        >
+                            {{ statusCounts.cancelled }} 筆
+                        </div>
+                    </div>
+                </v-card-text>
+            </v-card>
+
+            
+            <v-card
+                class="stat-card cursor-pointer"
+                elevation="1"
+                rounded="lg"
+                style="width: 180px; min-width: 140px"
+                :style="
+                    statusFilter === 'returned'
+                        ? 'border: 2px solid #3F51B5'
+                        : 'border: 2px solid transparent'
+                "
+                @click="toggleStatusFilter('returned')"
+            >
+                <v-card-text class="d-flex align-center ga-3 py-3 px-4">
+                    <v-icon size="20" color="indigo"
+                        >mdi-undo</v-icon
+                    >
+                    <div class="d-flex flex-column ga-1">
+                        <div
+                            class="text-caption text-grey"
+                            style="line-height: 1"
+                        >
+                            退貨
+                        </div>
+                        <div
+                            class="font-weight-bold text-indigo"
+                            style="font-size: 20px; line-height: 1.2"
+                        >
+                            {{ statusCounts.returned }} 筆
+                        </div>
+                    </div>
+                </v-card-text>
+            </v-card>
         </div>
 
         <div class="d-flex flex-wrap ga-2 justify-center mb-3">
@@ -389,6 +549,39 @@ onMounted(fetchOrders);
                             window.location.href = `/admin/orders/${item.id}`
                         "
                     />
+                    <v-tooltip
+                        v-if="item.status === 'pending'"
+                        text="取消訂單"
+                        location="top"
+                    >
+                        <template #activator="{ props }">
+                            <v-btn
+                                v-bind="props"
+                                icon="mdi-package-variant-closed-remove"
+                                color="error"
+                                variant="text"
+                                size="small"
+                                @click.stop="openCancelDialog(item)"
+                            />
+                        </template>
+                    </v-tooltip>
+
+                    <v-tooltip
+                        v-if="item.status === 'completed'"
+                        text="確認退貨"
+                        location="top"
+                    >
+                        <template #activator="{ props }">
+                            <v-btn
+                                v-bind="props"
+                                icon="mdi-undo"
+                                color="indigo"
+                                variant="text"
+                                size="small"
+                                @click.stop="openReturnDialog(item)"
+                            />
+                        </template>
+                    </v-tooltip>
                 </div>
             </template>
         </v-data-table>
@@ -401,6 +594,44 @@ onMounted(fetchOrders);
         >
             {{ snackbarText }}
         </v-snackbar>
+
+        <v-dialog v-model="cancelDialog" max-width="400">
+            <v-card>
+                <v-card-title class="text-h6 pt-5 px-6">確認取消訂單？</v-card-title>
+                <v-card-text class="px-6 text-grey-darken-1">
+                    訂單 <strong>{{ cancelTarget?.order_number }}</strong> 取消後庫存將自動回補，此操作無法還原。
+                </v-card-text>
+                <v-card-actions class="pb-4 px-6">
+                    <v-spacer />
+                    <v-btn variant="text" @click="cancelDialog = false">返回</v-btn>
+                    <v-btn
+                        color="error"
+                        variant="tonal"
+                        :loading="cancelling"
+                        @click="confirmCancel"
+                    >確認取消</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="returnDialog" max-width="400">
+            <v-card>
+                <v-card-title class="text-h6 pt-5 px-6">確認退貨？</v-card-title>
+                <v-card-text class="px-6 text-grey-darken-1">
+                    訂單 <strong>{{ returnTarget?.order_number }}</strong> 退貨後庫存將自動回補，此操作無法還原。
+                </v-card-text>
+                <v-card-actions class="pb-4 px-6">
+                    <v-spacer />
+                    <v-btn variant="text" @click="returnDialog = false">返回</v-btn>
+                    <v-btn
+                        color="indigo"
+                        variant="tonal"
+                        :loading="returning"
+                        @click="confirmReturn"
+                    >確認退貨</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </AdminLayout>
 </template>
 
