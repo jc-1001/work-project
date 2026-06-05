@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout',     [AuthController::class, 'logout']);
     Route::get('/me',          [AuthController::class, 'me']);
     Route::put('/user/update', [UserController::class, 'update']);
+
+    Route::get('/orders',  [OrderController::class, 'index']);
 });
 
 /*
@@ -54,7 +57,10 @@ Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9
 | 前台 Blade 頁面（需要登入，未登入自動轉 /login）
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {});
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [PageController::class, 'profile'])->name('front.profile');
+    Route::get('/profile/orders', [PageController::class, 'orderIndex'])->name('front.profile.order');
+});
 
 /*
 |--------------------------------------------------------------------------

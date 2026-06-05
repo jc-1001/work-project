@@ -19,7 +19,7 @@ class Order extends Model
         'payment_method',
         'invoice_type',
         'tax_id',
-        'carrier'
+        'carrier',
     ];
 
     public function user()
