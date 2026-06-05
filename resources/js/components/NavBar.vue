@@ -2,8 +2,10 @@
     import { computed, ref } from 'vue'
     import api from '../bootstrap'
     import { useAuth } from '../composables/useAuth'
+    import { useCart } from '../composables/useCart'
 
     const { user, clearUser } = useAuth()
+    const { cartCount } = useCart()
     const isLoggedIn = computed(() => !!user.value)
     const currentPath = window.location.pathname
     const drawer = ref(false)
@@ -22,7 +24,13 @@
             path: '/profile',
             requiresAuth: true,
         },
-        { name: '購物車', icon: 'mdi-cart', path: '/cart', requiresAuth: true },
+        {
+            name: '購物車',
+            icon: 'mdi-cart',
+            path: '/cart',
+            badge: true,
+            requiresAuth: true,
+        },
     ]
 
     const displayMenuItems = computed(() => (isLoggedIn.value ? menuItems : menuItems.filter((item) => !item.requiresAuth)))
@@ -31,17 +39,19 @@
         window.location.href = path
     }
 
-    const handleLogout = async () => {
+    const handleLogout = () => {
         drawer.value = false
-        try {
-            await api.post('/logout')
-            notify('登出成功')
-        } catch {
-            notify('登出失敗，請稍後再試', 'error')
-        } finally {
-            clearUser()
-            window.location.href = '/'
-        }
+        api.post('/logout')
+            .then(() => {
+                notify('登出成功')
+            })
+            .catch(() => {
+                notify('登出失敗，請稍後再試', 'error')
+            })
+            .finally(() => {
+                clearUser()
+                window.location.href = '/'
+            })
     }
 </script>
 
@@ -58,7 +68,11 @@
                 :active="currentPath === item.path"
                 rounded="lg"
                 @click="navigate(item.path)"
-            />
+            >
+                <template v-if="item.badge && cartCount > 0" #append>
+                    <v-badge :content="cartCount" color="error" inline class="ms-2" />
+                </template>
+            </v-list-item>
             <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="登出" rounded="lg" @click="handleLogout" />
             <v-list-item v-else prepend-icon="mdi-login" title="登入" rounded="lg" @click="navigate('/login')" />
         </v-list>
@@ -71,17 +85,16 @@
 
         <template #append>
             <div class="d-none d-md-flex align-center">
-                <v-btn
-                    v-for="item in displayMenuItems"
-                    :key="item.path"
-                    :prepend-icon="item.icon"
-                    variant="text"
-                    color="white"
-                    :active="currentPath === item.path"
-                    @click="navigate(item.path)"
-                >
-                    {{ item.name }}
-                </v-btn>
+                <template v-for="item in displayMenuItems" :key="item.path">
+                    <v-btn v-if="!item.badge" :prepend-icon="item.icon" variant="text" color="white" :active="currentPath === item.path" @click="navigate(item.path)">
+                        {{ item.name }}
+                    </v-btn>
+                    <v-badge v-else :content="cartCount" :model-value="cartCount > 0" color="error" floating location="top end" :offset-x="20" :offset-y="12">
+                        <v-btn :prepend-icon="item.icon" variant="text" color="white" :active="currentPath === item.path" @click="navigate(item.path)">
+                            {{ item.name }}
+                        </v-btn>
+                    </v-badge>
+                </template>
 
                 <v-btn v-if="isLoggedIn" prepend-icon="mdi-logout" variant="text" color="white" @click="handleLogout">登出</v-btn>
                 <v-btn v-else prepend-icon="mdi-login" variant="text" color="white" @click="navigate('/login')">登入</v-btn>
