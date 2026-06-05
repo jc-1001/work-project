@@ -20,6 +20,7 @@ class Order extends Model
         'invoice_type',
         'tax_id',
         'carrier',
+        'status'
     ];
 
     public function user()
