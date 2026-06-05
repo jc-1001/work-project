@@ -20,7 +20,6 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    // 註冊
     public function register(Request $request)
     {
         $request->validate([
@@ -46,14 +45,12 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        // 隱藏欄位獲取部分欄位
         return response()->json([
             'message' => '註冊成功',
             'user'    => $user->only(['id', 'name', 'email']),
         ], 201);
     }
 
-    // 登入
     public function login(Request $request)
     {
         $request->validate([
@@ -69,31 +66,30 @@ class AuthController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-
-        if (!$user->is_active) {
-            Auth::logout();
-            throw ValidationException::withMessages([
-                'email' => ['帳號已停用，請聯絡管理員'],
-            ]);
-        }
+        $user->load('roles');
 
         if ($user->isAdmin()) {
             Auth::logout();
-            throw ValidationException::withMessages([
-                'email' => ['管理員帳號請由後台登入'],
-            ]);
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return response()->json(['message' => '管理員帳號請使用後台登入頁面'], 403);
+        }
+
+        if (!$user->is_active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return response()->json(['message' => '帳號已停用，請聯繫管理員'], 403);
         }
 
         $request->session()->regenerate();
 
-        // 隱藏欄位獲取部分欄位
         return response()->json([
             'message' => '登入成功',
             'user'    => $user->only(['id', 'name', 'email']),
         ]);
     }
 
-    // 登出
     public function logout(Request $request)
     {
         Auth::logout();
@@ -105,13 +101,16 @@ class AuthController extends Controller
         ]);
     }
 
-    // 取得當前使用者
     public function me(Request $request)
     {
         /** @var User $user */
         $user = $request->user();
+        $user->load('roles');
 
-        // 隱藏欄位獲取部分欄位
+        if ($user->isAdmin()) {
+            return response()->json(['message' => '管理員帳號不可使用前台功能'], 403);
+        }
+
         return response()->json([
             'user' => [
                 'id'       => $user->id,

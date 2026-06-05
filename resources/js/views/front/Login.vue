@@ -32,8 +32,9 @@ const login = async () => {
   try {
     await api.post("/login", { email: email.value, password: password.value })
     window.location.href = "/"
-  } catch {
-    notify("登入失敗，請檢查您的帳號和密碼", "error")
+  } catch (error) {
+    const msg = error.response?.data?.message || "登入失敗，請檢查您的帳號和密碼"
+    notify(msg, "error")
     isSubmitting.value = false
   }
 }

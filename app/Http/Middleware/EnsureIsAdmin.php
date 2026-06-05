@@ -2,19 +2,34 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureIsAdmin
 {
-    // 萬一有人直接在瀏覽器開 API 網址，也能給出合理的回應而不是一堆 JSON 文字
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user()?->isAdmin()) {
+        /** @var User|null $user */
+        $user = $request->user();
+
+        if (!$user) {
             return $request->expectsJson()
-                ? response()->json(['message' => '無權限'], 403)
+                ? response()->json(['message' => '請先登入'], 401)
                 : redirect()->route('admin.login');
+        }
+
+        if (!$user->isAdmin()) {
+            return $request->expectsJson()
+                ? response()->json(['message' => '無後台管理員權限'], 403)
+                : redirect()->route('admin.login');
+        }
+
+        if (!$user->is_active) {
+            return $request->expectsJson()
+                ? response()->json(['message' => '帳號已停用'], 403)
+                : redirect('/admin/login');
         }
 
         return $next($request);

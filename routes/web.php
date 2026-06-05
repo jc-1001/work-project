@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,8 +17,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/admin/login', [PageController::class, 'adminLogin'])->name('admin.login');
 });
 
-Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+
+Route::post('/login',       [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/register',    [AuthController::class, 'register'])->middleware('throttle:5,1');
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1');
 
 /*
 |--------------------------------------------------------------------------
@@ -36,9 +38,6 @@ Route::middleware('auth')->group(function () {
 | 前台公開 API（無需登入）
 |--------------------------------------------------------------------------
 */
-Route::get('/categories',    [ProductController::class, 'categories']);
-Route::get('/products',      [ProductController::class, 'frontIndex']);
-Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
 
 /*
 |--------------------------------------------------------------------------
@@ -46,8 +45,6 @@ Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id
 |--------------------------------------------------------------------------
 */
 Route::get('/',          [PageController::class, 'home'])->name('front.home');
-Route::get('/shop',      [PageController::class, 'shopIndex'])->name('front.shop');
-Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -61,4 +58,9 @@ Route::middleware('auth')->group(function () {});
 | 後台（需要 admin 角色）
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {});
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+
+    Route::get('/me',        [AdminAuthController::class, 'me']);
+    Route::post('/logout',   [AdminAuthController::class, 'logout']);
+
+});
