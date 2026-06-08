@@ -7,14 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use App\Services\EcpayService;
 
 class OrderController extends Controller
 {
     public function latest()
     {
         $order = Order::where('user_id', auth()->id())
-                      ->orderBy('created_at', 'desc')
-                      ->first(['name', 'phone', 'address']);
+            ->orderBy('created_at', 'desc')
+            ->first(['name', 'phone', 'address']);
 
         return response()->json(['order' => $order]);
     }
@@ -37,7 +38,7 @@ class OrderController extends Controller
             'customer.name'    => 'required|string',
             'customer.phone'   => 'required|string',
             'customer.address' => 'required|string',
-            'paymentMethod'    => 'required|string|in:Credit card,ATM,cvs,cod',
+            'paymentMethod'    => 'required|string|in:Credit card,ATM,cvs,cod,ECPay',
             'bill'             => 'nullable|string',
             'taxId'            => 'nullable|string',
             'carrier'          => 'nullable|string',
@@ -93,6 +94,32 @@ class OrderController extends Controller
                         'quantity'     => $item['quantity'],
                     ]);
                     $product->decrement('stock', $item['quantity']);
+                }
+
+                if ($validated['paymentMethod'] === 'ECPay') {
+                    $ecpay = new EcpayService();
+
+                    $params = [
+                        'MerchantID'        => config('services.ecpay.merchant_id'),
+                        'MerchantTradeNo'   => $order->order_number,
+                        'MerchantTradeDate' => now()->format('Y/m/d H:i:s'),
+                        'PaymentType'       => 'aio',
+                        'TotalAmount'       => (int)($order->total_amount + config('app.shipping_fee', 60)),
+                        'TradeDesc'         => '購物訂單',
+                        'ItemName'          => $order->items->map(fn($i) => $i->product_name . ' x' . $i->quantity)->implode('#'),
+                        'ReturnURL'         => config('services.ecpay.notify_url'),
+                        'OrderResultURL'    => config('services.ecpay.return_url'),
+                        'ChoosePayment'     => 'Credit',
+                        'EncryptType'       => 1,
+                    ];
+
+                    $formHtml = $ecpay->buildForm($params);
+
+                    return response()->json([
+                        'message'   => 'ECPay',
+                        'form_html' => $formHtml,
+                        'order_id'  => $order->id,
+                    ], 201);
                 }
 
                 return response()->json([
