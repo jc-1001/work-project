@@ -39,13 +39,18 @@ Route::middleware('auth')->group(function () {
 | 前台公開 API（無需登入）
 |--------------------------------------------------------------------------
 */
-Route::get('/categories', [ProductController::class, 'categories']);
+Route::get('/categories',    [ProductController::class, 'categories']);
+Route::get('/products',      [ProductController::class, 'frontIndex']);
+Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
 /*
 |--------------------------------------------------------------------------
 | 前台 Blade 頁面（公開，不需登入）
 |--------------------------------------------------------------------------
 */
 Route::get('/',          [PageController::class, 'home'])->name('front.home');
+Route::get('/shop',      [PageController::class, 'shopIndex'])->name('front.shop');
+Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -69,10 +74,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
-    Route::patch('/products/batch-status', [ProductController::class, 'batchUpdateStatus']);
-    Route::get('/products',       [ProductController::class, 'index']);
-    Route::get('/products/{id}',  [ProductController::class, 'show'])->where('id', '[0-9]+');
-    Route::post('/products',      [ProductController::class, 'store']);
-    Route::post('/products/{id}', [ProductController::class, 'update'])->where('id', '[0-9]+');
-
+    Route::patch('/products/batch-status',              [ProductController::class, 'batchUpdateStatus']);
+    Route::get('/products',                             [ProductController::class, 'index']);
+    Route::get('/products/{id}',                        [ProductController::class, 'show'])->where('id', '[0-9]+');
+    Route::post('/products',                            [ProductController::class, 'store']);
+    Route::post('/products/{id}',                       [ProductController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/products/{id}/images/{imageId}',    [ProductController::class, 'deleteImage'])->where(['id' => '[0-9]+', 'imageId' => '[0-9]+']);
 });

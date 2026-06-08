@@ -23,13 +23,6 @@ api.interceptors.response.use(
             window.location.href = isAdmin ? '/admin/login' : '/login'
         }
 
-        if (status === 403) {
-            const isLoginPage = path === '/login' || path === '/admin/login'
-            if (!isLoginPage) {
-                window.location.href = '/403'
-            }
-        }
-
         if (status === 500) {
             console.error('[API 500]', error.config?.url, error.response?.data)
         }
