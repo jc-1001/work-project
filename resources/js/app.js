@@ -11,6 +11,7 @@ import ShopShow   from './views/front/shop/ProductDetail.vue'
 import Login      from './views/front/Login.vue'
 import Register   from './views/front/Register.vue'
 import AdminLogin from './views/admin/adminLogin.vue'
+import AdminDashboard from './views/admin/Dashboard.vue'
 
 const pageMap = {
     'home':        Home,
@@ -19,6 +20,7 @@ const pageMap = {
     'login':       Login,
     'register':    Register,
     'admin-login': AdminLogin,
+    'admin-dashboard':  AdminDashboard,
 }
 
 const vuetify = createVuetify()

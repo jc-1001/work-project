@@ -23,4 +23,9 @@ class PageController extends Controller
     {
         return view('auth.admin-login');
     }
+
+    public function adminDashboard()
+    {
+        return view('admin.dashboard');
+    }
 }

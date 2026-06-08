@@ -18,8 +18,8 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    
-]);
+  { name: "後台儀錶板",  icon:"mdi-monitor-dashboard",  path: "/admin/dashboard" },
+])
 
 const navigate = (path) => {
     window.location.href = path;
