@@ -5,6 +5,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
     Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
@@ -43,6 +45,11 @@ Route::middleware('auth')->group(function () {
 Route::get('/categories',    [ProductController::class, 'categories']);
 Route::get('/products',      [ProductController::class, 'frontIndex']);
 Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
+Route::get('/products/{id}/reviews', [ReviewController::class, 'index'])->where('id', '[0-9]+');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[0-9]+');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -51,7 +58,7 @@ Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id
 */
 Route::get('/',          [PageController::class, 'home'])->name('front.home');
 Route::get('/shop',      [PageController::class, 'shopIndex'])->name('front.shop');
-Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');  
+Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');
 
 
 /*
