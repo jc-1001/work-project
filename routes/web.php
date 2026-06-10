@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ComplaintController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,6 +50,7 @@ Route::get('/products/{id}/reviews', [ReviewController::class, 'index'])->where(
 
 Route::middleware('auth')->group(function () {
     Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[0-9]+');
+    Route::post('/reviews/{id}/complaint', [ComplaintController::class, 'store'])->where('id', '[0-9]+');
 });
 
 /*
