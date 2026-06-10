@@ -49,6 +49,7 @@ Route::get('/products/{id}/reviews', [ReviewController::class, 'index'])->where(
 
 Route::middleware('auth')->group(function () {
     Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[0-9]+');
+    Route::patch('/reviews/{id}', [ReviewController::class, 'update'])->where('id', '[0-9]+');
 });
 
 /*

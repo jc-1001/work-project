@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Review;
+use App\Models\ReviewImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -34,5 +35,41 @@ class ReviewController extends Controller
             'reviews'    => $reviews,
             'stats'      => $stats,
         ]);
+    }
+
+    public function update(Request $request, $reviewId)
+    {
+        $review = Review::where('id', $reviewId)->where('user_id', auth()->id())->firstOrFail();
+
+        $request->validate([
+            'rating'     => 'required|integer|min:1|max:5',
+            'content'    => 'nullable|string|max:1000',
+            'keep_ids'   => 'nullable|array',
+            'keep_ids.*' => 'integer',
+            'images'     => 'nullable|array',
+            'images.*'   => 'image|max:2048',
+        ]);
+
+        $review->update([
+            'rating'  => $request->rating,
+            'content' => $request->content,
+        ]);
+
+        $keepIds = $request->input('keep_ids', []);
+        $review->images()->whereNotIn('id', $keepIds)->each(function ($img) {
+            Storage::disk('public')->delete($img->path);
+            $img->delete();
+        });
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                ReviewImage::create([
+                    'review_id' => $review->id,
+                    'path'      => $image->store('reviews', 'public'),
+                ]);
+            }
+        }
+
+        return response()->json(['message' => '評論已更新', 'review' => $review->load('images')]);
     }
 }

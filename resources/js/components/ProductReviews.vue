@@ -1,8 +1,10 @@
 <script setup>
-    import { ref, computed, watch } from 'vue'
+    import { ref, computed, watch, onMounted } from 'vue'
     import api from '../bootstrap.js'
+    import { useAuth } from '../composables/useAuth'
 
     const props = defineProps({ productId: [String, Number] })
+    const { user, fetchUser } = useAuth()
 
     const reviews = ref([])
     const stats = ref(null)
@@ -37,13 +39,17 @@
     }
 
     const getInitial = (name) => name?.charAt(0) ?? '?'
+    const avatarColors = ['blue-grey', 'blue-grey-darken-1', 'blue-grey-darken-2', 'grey-darken-1', 'grey-darken-2']
+    const getAvatarColor = (id) => avatarColors[id % avatarColors.length]
 
     const formatDate = (dateStr) => dateStr?.slice(0, 10) ?? ''
 
     const previewSrc = ref(null)
     const previewOpen = computed({
         get: () => previewSrc.value !== null,
-        set: (val) => { if (!val) previewSrc.value = null },
+        set: (val) => {
+            if (!val) previewSrc.value = null
+        },
     })
 
     const fetchReviews = (page = 1) => {
@@ -69,6 +75,65 @@
         fetchReviews(1)
     }
 
+    const editDialog = ref(false)
+    const editTarget = ref(null)
+    const editForm = ref({ rating: 5, content: '' })
+    const editSubmitting = ref(false)
+    const keepIds = ref([])
+    const newImages = ref([])
+    const newImagePreviews = ref([])
+
+    const openEdit = (review) => {
+        editTarget.value = review
+        editForm.value = { rating: review.rating, content: review.content ?? '' }
+        keepIds.value = (review.images ?? []).map((img) => img.id)
+        newImages.value = []
+        newImagePreviews.value = []
+        editDialog.value = true
+    }
+
+    const removeExistingImage = (id) => {
+        keepIds.value = keepIds.value.filter((i) => i !== id)
+    }
+
+    const onNewImagesSelected = (files) => {
+        if (!files) return
+        const list = Array.isArray(files) ? files : Array.from(files)
+        const remaining = 5 - keepIds.value.length - newImages.value.length
+        list.slice(0, remaining).forEach((file) => {
+            newImages.value.push(file)
+            newImagePreviews.value.push(URL.createObjectURL(file))
+        })
+    }
+
+    const removeNewImage = (index) => {
+        URL.revokeObjectURL(newImagePreviews.value[index])
+        newImages.value.splice(index, 1)
+        newImagePreviews.value.splice(index, 1)
+    }
+
+    const submitEdit = () => {
+        editSubmitting.value = true
+        const fd = new FormData()
+        fd.append('_method', 'PATCH')
+        fd.append('rating', editForm.value.rating)
+        fd.append('content', editForm.value.content ?? '')
+        keepIds.value.forEach((id) => fd.append('keep_ids[]', id))
+        newImages.value.forEach((file) => fd.append('images[]', file))
+
+        api.post(`/reviews/${editTarget.value.id}`, fd, { headers: { 'Content-Type': undefined } })
+            .then((res) => {
+                editTarget.value.rating = editForm.value.rating
+                editTarget.value.content = editForm.value.content
+                editTarget.value.images = res.data.review.images
+                editDialog.value = false
+            })
+            .catch(() => {})
+            .finally(() => {
+                editSubmitting.value = false
+            })
+    }
+
     watch(
         () => props.productId,
         (id) => {
@@ -76,6 +141,10 @@
         },
         { immediate: true }
     )
+
+    onMounted(() => {
+        fetchUser()
+    })
 </script>
 
 <template>
@@ -139,9 +208,28 @@
                     <div class="d-flex flex-column">
                         <div class="font-weight-bold text-body-1">{{ review.user?.name }}</div>
                         <v-rating :model-value="review.rating" readonly density="comfortable" size="20" active-color="primary" color="primary" />
-                        <div class="text-caption text-medium-emphasis">{{ formatDate(review.created_at) }}</div>
+                        <div class="d-flex ga-4 align-center">
+                            <div class="text-caption text-medium-emphasis">{{ formatDate(review.created_at) }}</div>
+                            <div v-if="review.updated_at !== review.created_at" class="text-medium-emphasis" style="font-size: 16px">
+                                編輯於 {{ formatDate(review.updated_at) }}
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <v-menu>
+                    <template #activator="{ props: menuProps }">
+                        <v-btn variant="text" class="ma-3" icon="mdi-dots-horizontal" v-bind="menuProps" />
+                    </template>
+                    <v-list density="compact">
+                        <v-list-item
+                            v-if="user?.id === review.user?.id"
+                            class="text-body-2 cursor-pointer"
+                            prepend-icon="mdi-comment-edit"
+                            title="編輯評論"
+                            @click="openEdit(review)"
+                        />
+                    </v-list>
+                </v-menu>
             </div>
             <v-divider class="mx-5" />
 
@@ -170,5 +258,73 @@
 
     <v-dialog v-model="previewOpen" max-width="50vw">
         <v-img :src="previewSrc" max-height="50vh" contain @click="previewSrc = null" />
+    </v-dialog>
+
+    <v-dialog v-model="editDialog" max-width="480">
+        <v-card rounded="xl">
+            <v-card-title class="pt-5 px-5 text-h6 font-weight-bold">編輯評論</v-card-title>
+            <v-card-text class="px-5">
+                <v-sheet rounded="lg" color="grey-lighten-5" class="d-flex align-center px-4 py-3 mb-4">
+                    <span class="text-body-2 text-medium-emphasis mr-4">評分</span>
+                    <v-rating v-model="editForm.rating" active-color="primary" color="grey-lighten-2" density="default" size="30" />
+                    <span class="text-caption text-medium-emphasis ml-3">
+                        {{ ['', '非常差', '差', '普通', '不錯', '非常好'][editForm.rating] }}
+                    </span>
+                </v-sheet>
+                <v-textarea v-model="editForm.content" label="評論內容" variant="outlined" density="compact" rows="5" clearable />
+
+                <div v-if="editTarget?.images?.length || newImagePreviews.length" class="mb-2">
+                    <div class="text-caption text-medium-emphasis mb-2">圖片</div>
+                    <div class="d-flex flex-wrap ga-2">
+                        <div
+                            v-for="img in editTarget.images.filter((i) => keepIds.includes(i.id))"
+                            :key="img.id"
+                            class="position-relative"
+                            :style="{ width: '80px', height: '80px' }"
+                        >
+                            <v-img :src="`/storage/${img.path}`" :width="80" :height="80" rounded="lg" cover />
+                            <v-btn
+                                icon="mdi-close"
+                                size="x-small"
+                                color="error"
+                                variant="flat"
+                                class="position-absolute"
+                                :style="{ top: '-6px', right: '-6px' }"
+                                @click="removeExistingImage(img.id)"
+                            />
+                        </div>
+                        <div v-for="(preview, i) in newImagePreviews" :key="`new-${i}`" class="position-relative" :style="{ width: '80px', height: '80px' }">
+                            <v-img :src="preview" :width="80" :height="80" rounded="lg" cover />
+                            <v-btn
+                                icon="mdi-close"
+                                size="x-small"
+                                color="error"
+                                variant="flat"
+                                class="position-absolute"
+                                :style="{ top: '-6px', right: '-6px' }"
+                                @click="removeNewImage(i)"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <v-file-input
+                    label="新增圖片"
+                    variant="filled"
+                    density="compact"
+                    accept="image/*"
+                    multiple
+                    hide-details
+                    prepend-icon=""
+                    prepend-inner-icon="mdi-image-plus"
+                    @update:model-value="onNewImagesSelected"
+                />
+            </v-card-text>
+            <v-card-actions class="px-5 pb-5">
+                <v-spacer />
+                <v-btn variant="text" @click="editDialog = false">取消</v-btn>
+                <v-btn color="primary" variant="tonal" :loading="editSubmitting" @click="submitEdit">儲存</v-btn>
+            </v-card-actions>
+        </v-card>
     </v-dialog>
 </template>
