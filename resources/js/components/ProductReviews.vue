@@ -37,13 +37,17 @@
     }
 
     const getInitial = (name) => name?.charAt(0) ?? '?'
+    const avatarColors = ['blue-grey', 'blue-grey-darken-1', 'blue-grey-darken-2', 'grey-darken-1', 'grey-darken-2']
+    const getAvatarColor = (id) => avatarColors[id % avatarColors.length]
 
     const formatDate = (dateStr) => dateStr?.slice(0, 10) ?? ''
 
     const previewSrc = ref(null)
     const previewOpen = computed({
         get: () => previewSrc.value !== null,
-        set: (val) => { if (!val) previewSrc.value = null },
+        set: (val) => {
+            if (!val) previewSrc.value = null
+        },
     })
 
     const fetchReviews = (page = 1) => {
@@ -67,6 +71,16 @@
     const applyFilter = (val) => {
         filterRating.value = val
         fetchReviews(1)
+    }
+
+    const vote = (review, type) => {
+        api.post(`/reviews/${review.id}/vote`, { type })
+            .then((res) => {
+                review.up_count = res.data.up_count
+                review.down_count = res.data.down_count
+                review.my_vote = res.data.action === 'cancelled' ? null : type
+            })
+            .catch(() => {})
     }
 
     watch(
@@ -160,6 +174,25 @@
                         @click="previewSrc = `/storage/${img.path}`"
                     />
                 </div>
+            </div>
+
+            <div class="ma-5 text-body-2 text-medium-emphasis text-right">
+                <v-btn
+                    variant="text"
+                    size="small"
+                    :color="review.my_vote === 'up' ? 'primary' : undefined"
+                    :prepend-icon="review.my_vote === 'up' ? 'mdi-thumb-up' : 'mdi-thumb-up-outline'"
+                    @click="vote(review, 'up')"
+                >
+                    有幫助 {{ review.up_count ? `(${review.up_count})` : '' }}
+                </v-btn>
+                <v-btn
+                    variant="text"
+                    size="small"
+                    :color="review.my_vote === 'down' ? 'error' : undefined"
+                    :icon="review.my_vote === 'down' ? 'mdi-thumb-down' : 'mdi-thumb-down-outline'"
+                    @click="vote(review, 'down')"
+                />
             </div>
         </v-card>
     </div>

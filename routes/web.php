@@ -48,7 +48,7 @@ Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id
 Route::get('/products/{id}/reviews', [ReviewController::class, 'index'])->where('id', '[0-9]+');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[0-9]+');
+    Route::post('/reviews/{id}/vote', [ReviewController::class, 'vote'])->where('id', '[0-9]+');
 });
 
 /*
