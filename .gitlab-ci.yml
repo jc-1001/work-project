@@ -1,7 +1,0 @@
-include:
-  - component: $CI_SERVER_FQDN/dev/cicd/review@dev
-    inputs:
-      stage: test
-
-stages:
-  - test
