@@ -23,4 +23,14 @@ class PageController extends Controller
     {
         return view('auth.admin-login');
     }
+
+    public function adminReplyList()
+    {
+        return view('admin.customer-service-index');
+    }
+
+    public function adminReply($id)
+    {
+        return view('admin.customer-service-reply', ['id' => $id]);
+    }
 }

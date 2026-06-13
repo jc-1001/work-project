@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
     Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
@@ -38,7 +40,7 @@ Route::middleware('auth')->group(function () {
 | 前台公開 API（無需登入）
 |--------------------------------------------------------------------------
 */
-
+Route::post('/newMessage',    [ContactMessageController::class, 'store']);
 /*
 |--------------------------------------------------------------------------
 | 前台 Blade 頁面（公開，不需登入）
@@ -63,4 +65,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/me',        [AdminAuthController::class, 'me']);
     Route::post('/logout',   [AdminAuthController::class, 'logout']);
 
+    Route::get('/reply',         [PageController::class, 'adminReplyList']);
+    Route::get('/reply/{id}',     [PageController::class, 'adminReply'])->where('id', '[0-9]+');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
+    Route::get('/contactMessages', [ContactMessageController::class, 'adminIndex']);
+    Route::get('/contactMessages/{id}',                 [ContactMessageController::class, 'adminShow'])->where('id', '[0-9]+');
+
+
+
+    Route::patch('/contactMessages/batch-status',       [ContactMessageController::class, 'batchUpdateStatus']);
+    Route::patch('/contactMessages/{contactMessage}/status',     [ContactMessageController::class, 'updateStatus']);
+    Route::patch('/contactMessages/{contactMessage}/reply',      [ContactMessageController::class, 'adminReplyStore']);
 });

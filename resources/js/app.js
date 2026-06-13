@@ -11,6 +11,8 @@ import ShopShow   from './views/front/shop/ProductDetail.vue'
 import Login      from './views/front/Login.vue'
 import Register   from './views/front/Register.vue'
 import AdminLogin from './views/admin/adminLogin.vue'
+import CustomerServiceList from './views/admin/Reply/CustomerServiceList.vue'
+import ReplyCustomer from './views/admin/Reply/ReplyCustomer.vue'
 
 const pageMap = {
     'home':        Home,
@@ -19,6 +21,8 @@ const pageMap = {
     'login':       Login,
     'register':    Register,
     'admin-login': AdminLogin,
+    'customer-service-index': CustomerServiceList,
+    'customer-service-reply': ReplyCustomer
 }
 
 const vuetify = createVuetify()

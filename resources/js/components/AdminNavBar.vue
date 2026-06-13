@@ -18,7 +18,7 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    
+    { name: "客服回覆",    icon: "mdi-face-agent",     path: "/admin/reply" },
 ]);
 
 const navigate = (path) => {
