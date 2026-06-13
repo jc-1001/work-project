@@ -1,45 +1,44 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useDisplay } from "vuetify";
-import { useAdminAuth } from "../composables/useAdminAuth";
-import api from "../bootstrap";
+    import { ref, computed, onMounted } from 'vue'
+    import { useDisplay } from 'vuetify'
+    import { useAdminAuth } from '../composables/useAdminAuth'
+    import api from '../bootstrap'
 
-const { clearUser, fetchUser } = useAdminAuth();
+    const { clearUser, fetchUser } = useAdminAuth()
 
-onMounted(() => {
-    fetchUser();
-});
-const { mobile } = useDisplay();
-const drawer = ref(false);
-const snackbar = ref({ show: false, text: "", color: "success" });
+    onMounted(() => {
+        fetchUser()
+    })
+    const { mobile } = useDisplay()
+    const drawer = ref(false)
+    const snackbar = ref({ show: false, text: '', color: 'success' })
 
-const showMessage = (text, color = "success") => {
-    snackbar.value = { show: true, text, color };
-};
+    const showMessage = (text, color = 'success') => {
+        snackbar.value = { show: true, text, color }
+    }
 
-const menuItems = computed(() => [
-    
-]);
+    const menuItems = computed(() => [{ name: '產品評論檢舉管理', icon: 'mdi-comment-account-outline', path: '/admin/complaints' }])
 
-const navigate = (path) => {
-    window.location.href = path;
-};
+    const navigate = (path) => {
+        drawer.value = false
+        window.location.href = path
+    }
 
-function logout() {
-    api.post("/admin/logout")
-        .then(() => {
-            showMessage("登出成功");
-        })
-        .catch(() => {
-            showMessage("登出失敗，請稍後再試", "error");
-        })
-        .finally(() => {
-            clearUser();
-            setTimeout(() => {
-                window.location.href = "/admin/login";
-            }, 1000);
-        });
-}
+    function logout() {
+        api.post('/admin/logout')
+            .then(() => {
+                showMessage('登出成功')
+            })
+            .catch(() => {
+                showMessage('登出失敗，請稍後再試', 'error')
+            })
+            .finally(() => {
+                clearUser()
+                setTimeout(() => {
+                    window.location.href = '/admin/login'
+                }, 1000)
+            })
+    }
 </script>
 
 <template>
@@ -52,17 +51,10 @@ function logout() {
                 :key="item.path"
                 :prepend-icon="item.icon"
                 :title="item.name"
-                @click="
-                    navigate(item.path);
-                    drawer = false;
-                "
+                @click="navigate(item.path)"
             />
             <v-divider class="my-2" />
-            <v-list-item
-                prepend-icon="mdi-logout"
-                title="登出"
-                @click="logout"
-            />
+            <v-list-item prepend-icon="mdi-logout" title="登出" @click="logout" />
         </v-list>
     </v-navigation-drawer>
 
@@ -71,28 +63,14 @@ function logout() {
         <v-app-bar-title v-if="mobile">後台管理</v-app-bar-title>
 
         <template v-if="!mobile">
-            <v-btn
-                v-for="item in menuItems"
-                :key="item.path"
-                variant="text"
-                :prepend-icon="item.icon"
-                @click="navigate(item.path)"
-                >{{ item.name }}</v-btn
-            >
+            <v-btn v-for="item in menuItems" :key="item.path" variant="text" :prepend-icon="item.icon" @click="navigate(item.path)">{{ item.name }}</v-btn>
         </template>
 
         <v-spacer />
-        <v-btn variant="text" prepend-icon="mdi-logout" @click="logout"
-            >登出</v-btn
-        >
+        <v-btn variant="text" prepend-icon="mdi-logout" @click="logout">登出</v-btn>
     </v-app-bar>
 
-    <v-snackbar
-        v-model="snackbar.show"
-        :color="snackbar.color"
-        timeout="1000"
-        location="top"
-    >
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="1000" location="top">
         {{ snackbar.text }}
     </v-snackbar>
 </template>

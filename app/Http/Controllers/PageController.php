@@ -23,4 +23,14 @@ class PageController extends Controller
     {
         return view('auth.admin-login');
     }
+
+    public function adminComplaintIndex()
+    {
+        return view('admin.complaints-index');
+    }
+
+    public function adminComplaintShow(int $id)
+    {
+        return view('admin.complaints-show', ['id' => $id]);
+    }
 }

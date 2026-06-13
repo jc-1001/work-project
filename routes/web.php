@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ComplaintController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
     Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
@@ -63,4 +65,23 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/me',        [AdminAuthController::class, 'me']);
     Route::post('/logout',   [AdminAuthController::class, 'logout']);
 
+    /*
+|--------------------------------------------------------------------------
+| 後台 Blade 頁面（需要登入，未登入自動轉 /admin/login）
+|--------------------------------------------------------------------------
+*/
+    Route::get('/complaints',      [PageController::class, 'adminComplaintIndex']);
+    Route::get('/complaints/{id}', [PageController::class, 'adminComplaintShow'])->where('id', '[0-9]+');
+});
+/*
+|--------------------------------------------------------------------------
+| 後台管理 API（auth + admin，由 Vue 元件透過 axios 呼叫）
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
+
+    Route::get('/complaints',                      [ComplaintController::class, 'adminIndex']);
+    Route::get('/complaints/{id}',                 [ComplaintController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::patch('/complaints/{id}',               [ComplaintController::class, 'updateStatus'])->where('id', '[0-9]+');
+    Route::post('/complaints/batch',               [ComplaintController::class, 'batchUpdateStatus']);
 });
