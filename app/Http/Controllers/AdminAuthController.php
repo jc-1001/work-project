@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminAuthController extends Controller
 {
-
     public function me(Request $request)
     {
         /** @var User $user */
@@ -19,7 +18,7 @@ class AdminAuthController extends Controller
             'id'    => $user->id,
             'name'  => $user->name,
             'email' => $user->email,
-            'role'  => $user->roles->first()?->name,
+            'role'  => $user->roles->contains('name', 'super_admin') ? 'super_admin' : 'admin',
         ]);
     }
 
@@ -61,7 +60,7 @@ class AdminAuthController extends Controller
                 'id'    => $user->id,
                 'name'  => $user->name,
                 'email' => $user->email,
-                'role'  => $user->roles->first()?->name,
+                'role'  => $user->roles->contains('name', 'super_admin') ? 'super_admin' : 'admin',
             ],
         ]);
     }
@@ -75,5 +74,4 @@ class AdminAuthController extends Controller
 
         return response()->json(['message' => '登出成功']);
     }
-
 }

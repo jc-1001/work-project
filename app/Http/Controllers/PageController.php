@@ -23,4 +23,24 @@ class PageController extends Controller
     {
         return view('auth.admin-login');
     }
+
+    public function administratorsIndex()
+    {
+        return view('admin.administrators-index');
+    }
+
+    public function administratorsShow(int $id)
+    {
+        return view('admin.administrators-show', ['id' => $id]);
+    }
+
+    public function adminForbidden()
+    {
+        return view('admin.forbidden');
+    }
+
+    public function forbidden()
+    {
+        return view('errors.403');
+    }
 }

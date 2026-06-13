@@ -6,11 +6,13 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+
 /*
 |--------------------------------------------------------------------------
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
     Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
@@ -45,6 +47,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/',          [PageController::class, 'home'])->name('front.home');
+Route::get('/403',       [PageController::class, 'forbidden']);
 
 /*
 |--------------------------------------------------------------------------
@@ -62,5 +65,31 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/me',        [AdminAuthController::class, 'me']);
     Route::post('/logout',   [AdminAuthController::class, 'logout']);
+
+/*
+|--------------------------------------------------------------------------
+| 後台 Blade 頁面（需要登入，未登入自動轉 /admin/login）
+|--------------------------------------------------------------------------
+*/
+    Route::get('/forbidden', [PageController::class, 'adminForbidden'])->name('admin.forbidden');
+
+    Route::middleware('super_admin')->group(function () {
+        Route::get('/administrators', [PageController::class, 'administratorsIndex'])->name('administrators.index');
+        Route::get('/administrators/{id}', [PageController::class, 'administratorsShow'])->where('id', '[0-9]+')->name('administrators.show');
+    });
+
+});
+/*
+|--------------------------------------------------------------------------
+| 後台管理 API（auth + admin + super_admin，由 Vue 元件透過 axios 呼叫）
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin','super_admin'])->prefix('api/admin')->group(function () {
+
+    Route::get('/administrators',                              [UserController::class, 'adminIndex']);
+    Route::get('/administrators/{id}',                         [UserController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::patch('/administrators/{id}/toggle-active',         [UserController::class, 'toggleActive'])->where('id', '[0-9]+');
+    Route::patch('/administrators/{id}',                       [UserController::class, 'adminUpdate'])->where('id', '[0-9]+');
+    Route::post('/administrators',                              [UserController::class, 'adminStore']);
 
 });
