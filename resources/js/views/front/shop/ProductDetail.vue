@@ -5,6 +5,7 @@
     import { useAuth } from '../../../composables/useAuth'
     import FrontLayout from '../../../layouts/FrontLayout.vue'
     import ProductReviews from '../../../components/ProductReviews.vue'
+    import ProductComment from '../../../components/ProductComment.vue'
 
     const window = globalThis
 
@@ -256,6 +257,7 @@
                         <v-tab value="one">運送須知</v-tab>
                         <v-tab value="two">免責聲明</v-tab>
                         <v-tab value="three">商品評論</v-tab>
+                        <v-tab value="four">撰寫評價</v-tab>
                     </v-tabs>
 
                     <v-divider></v-divider>
@@ -305,6 +307,11 @@
                         <v-tabs-window-item value="three">
                             <v-sheet class="pa-5">
                                 <ProductReviews :product-id="productId" />
+                            </v-sheet>
+                        </v-tabs-window-item>
+                        <v-tabs-window-item value="four">
+                            <v-sheet class="pa-5">
+                                <ProductComment :product-id="productId" />
                             </v-sheet>
                         </v-tabs-window-item>
                     </v-tabs-window>
