@@ -23,4 +23,16 @@ class PageController extends Controller
     {
         return view('auth.admin-login');
     }
+
+    public function adminAdvertisements(){
+        return view('admin.advertisements');
+    }
+
+    public function adminAdvertisementCreate(){
+        return view('admin.advertisement-create');
+    }
+
+    public function adminAdvertisementShow(int $id){
+        return view('admin.advertisements-show', ['id' => $id]);
+    }   
 }

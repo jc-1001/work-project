@@ -11,6 +11,8 @@ import ShopShow   from './views/front/shop/ProductDetail.vue'
 import Login      from './views/front/Login.vue'
 import Register   from './views/front/Register.vue'
 import AdminLogin from './views/admin/adminLogin.vue'
+import Advertisements       from './views/admin/Ad/AdList.vue'
+import AdvertisementDetail from './views/admin/Ad/AdDetail.vue'
 
 const pageMap = {
     'home':        Home,
@@ -19,6 +21,8 @@ const pageMap = {
     'login':       Login,
     'register':    Register,
     'admin-login': AdminLogin,
+    'admin-advertisements':        Advertisements,
+    'admin-advertisements-detail': AdvertisementDetail,
 }
 
 const vuetify = createVuetify()

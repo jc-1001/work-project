@@ -18,7 +18,7 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    
+    { name: "廣告管理", icon: "mdi-image-multiple",  path: "/admin/advertisements" },
 ]);
 
 const navigate = (path) => {
