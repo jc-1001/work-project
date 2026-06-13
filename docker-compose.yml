@@ -16,7 +16,7 @@ services:
       - ./:/var/www/html
     ports:
       - 5173:5173
-    command: sh -c "npm install --legacy-peer-deps && npm run dev"
+    command: sh -c "npm run dev"
 
   redis:
     image: redis:alpine

@@ -21,8 +21,5 @@ export default defineConfig({
             clientPort: 5173,
             protocol: 'ws',
         },
-        watch: {
-            usePolling: true,
-        },
     },
 })
