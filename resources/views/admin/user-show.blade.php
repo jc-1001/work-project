@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商品列表 — 購物網站</title>
+    <title>使用者詳情 — 後台使用者管理</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div id="app" data-page="shop-index"></div>
+    <div id="app" data-page="admin-user-show" data-id="{{ $id }}"></div>
 </body>
 </html>

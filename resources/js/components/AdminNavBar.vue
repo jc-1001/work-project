@@ -18,7 +18,8 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    { name: "商品管理",  icon: "mdi-package-variant",  path: "/admin/products" },
+    { name: "商品管理", icon: "mdi-package-variant", path: "/admin/products" },
+    { name: "會員列表", icon: "mdi-account-group", path: "/admin/user" },
 ]);
 
 const navigate = (path) => {

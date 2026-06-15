@@ -79,7 +79,9 @@ class AuthController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return response()->json(['message' => '帳號已停用，請聯繫管理員'], 403);
+            throw ValidationException::withMessages([
+                'email' => ['帳號已停用，請聯繫管理員'],
+            ]);
         }
 
         $request->session()->regenerate();

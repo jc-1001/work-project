@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
     Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
@@ -80,4 +81,22 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
     Route::post('/products',                            [ProductController::class, 'store']);
     Route::post('/products/{id}',                       [ProductController::class, 'update'])->where('id', '[0-9]+');
     Route::delete('/products/{id}/images/{imageId}',    [ProductController::class, 'deleteImage'])->where(['id' => '[0-9]+', 'imageId' => '[0-9]+']);
+    /*
+|--------------------------------------------------------------------------
+| 後台 Blade 頁面（需要登入，未登入自動轉 /admin/login）
+|--------------------------------------------------------------------------
+*/
+    Route::get('/user', [PageController::class, 'adminUsersIndex'])->name('admin.users.index');
+    Route::get('/user/{id}', [PageController::class, 'adminUsersShow'])->where('id', '[0-9]+')->name('admin.users.show');
+});
+/*
+|--------------------------------------------------------------------------
+| 後台管理 API（auth + admin，由 Vue 元件透過 axios 呼叫）
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
+
+    Route::get('/users',                      [UserController::class, 'adminIndex']);
+    Route::get('/users/{id}',                 [UserController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive']);
 });
