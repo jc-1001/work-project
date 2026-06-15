@@ -72,6 +72,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/products',         [PageController::class, 'adminProductsIndex']);
     Route::get('/products/create',   [PageController::class, 'adminProductsCreate']);
     Route::get('/products/{id}',     [PageController::class, 'adminProductsShow'])->where('id', '[0-9]+');
+
+    Route::get('/user',       [PageController::class, 'adminUsersIndex'])->name('admin.users.index');
+    Route::get('/user/{id}',  [PageController::class, 'adminUsersShow'])->where('id', '[0-9]+')->name('admin.users.show');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
@@ -81,13 +84,6 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
     Route::post('/products',                            [ProductController::class, 'store']);
     Route::post('/products/{id}',                       [ProductController::class, 'update'])->where('id', '[0-9]+');
     Route::delete('/products/{id}/images/{imageId}',    [ProductController::class, 'deleteImage'])->where(['id' => '[0-9]+', 'imageId' => '[0-9]+']);
-    /*
-|--------------------------------------------------------------------------
-| 後台 Blade 頁面（需要登入，未登入自動轉 /admin/login）
-|--------------------------------------------------------------------------
-*/
-    Route::get('/user', [PageController::class, 'adminUsersIndex'])->name('admin.users.index');
-    Route::get('/user/{id}', [PageController::class, 'adminUsersShow'])->where('id', '[0-9]+')->name('admin.users.show');
 });
 /*
 |--------------------------------------------------------------------------
