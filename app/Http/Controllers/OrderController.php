@@ -67,6 +67,13 @@ class OrderController extends Controller
             $order->update(['status' => 'cancelled']);
         });
 
+        $order->load('user');
+        try {
+            Mail::to($order->user->email)->queue(new OrderStatusChanged($order));
+        } catch (\Exception $e) {
+            report($e);
+        }
+
         return response()->json(['message' => '訂單已取消']);
     }
 
@@ -86,6 +93,13 @@ class OrderController extends Controller
             }
             $order->update(['status' => 'returned']);
         });
+
+        $order->load('user');
+        try {
+            Mail::to($order->user->email)->queue(new OrderStatusChanged($order));
+        } catch (\Exception $e) {
+            report($e);
+        }
 
         return response()->json(['message' => '訂單已退回']);
     }
