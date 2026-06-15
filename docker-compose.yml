@@ -1,48 +1,44 @@
 version: "3.8"
 
 services:
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
-    ports:
-      - 1434:1433
+    mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        environment:
+            - ACCEPT_EULA=Y
+            - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+        ports:
+            - 1434:1433
+        volumes:
+            - mssql_data:/var/opt/mssql
 
-  node:
-    image: node:20-alpine
-    working_dir: /var/www/html
-    volumes:
-      - ./:/var/www/html
-    ports:
-      - 5173:5173
-    command: sh -c "npm run dev"
+    redis:
+        image: redis:alpine
 
-  redis:
-    image: redis:alpine
+    shop:
+        build:
+            context: "."
+        environment:
+            - R_HOST=rscript
+            - DB_CONNECTION=sqlsrv
+            - DB_HOST=mssql
+            - DB_PORT=1433
+            - DB_DATABASE=laravel
+            - DB_USERNAME=sa
+            - DB_PASSWORD=${MSSQL_SA_PASSWORD}
+            - REDIS_HOST=redis
+        working_dir: /var/www/html/
+        ports:
+            - 8999:8080
+        depends_on:
+            - mssql
+            - redis
+        volumes:
+            - ./:/var/www/html
+            - ./.config/nginx/conf.d:/etc/nginx/conf.d:ro
+            - ./.config/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./.config/php/php.ini-production:/etc/php/php.ini-production
+            - ./.config/php-fpm.d/www.conf:/etc/php-fpm.d/www.conf
+            - ./.config/supervisor/conf.d:/etc/supervisor/conf.d
 
-  shop:
-    build:
-      context: "."
-    environment:
-      - R_HOST=rscript
-      - DB_CONNECTION=sqlsrv
-      - DB_HOST=mssql
-      - DB_PORT=1433
-      - DB_DATABASE=laravel
-      - DB_USERNAME=sa
-      - DB_PASSWORD=${MSSQL_SA_PASSWORD}
-      - REDIS_HOST=redis
-    working_dir: /var/www/html/
-    ports:
-      - 8999:8080
-    depends_on:
-      - mssql
-      - redis
-    volumes:
-      - ./:/var/www/html
-      - ./.config/nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./.config/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./.config/php/php.ini-production:/etc/php/php.ini-production
-      - ./.config/php-fpm.d/www.conf:/etc/php-fpm.d/www.conf
-      - ./.config/supervisor/conf.d:/etc/supervisor/conf.d
+volumes:
+    mssql_data:
