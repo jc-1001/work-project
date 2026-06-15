@@ -104,4 +104,6 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
     Route::get('/orders/{id}',                 [OrderController::class, 'adminShow'])->where('id', '[0-9]+');
     Route::patch('/orders/batch-status',       [OrderController::class, 'batchUpdateStatus']);
     Route::patch('/orders/{order}/status',     [OrderController::class, 'updateStatus']);
+    Route::patch('/orders/{order}/cancel',     [OrderController::class, 'cancel']);
+    Route::patch('/orders/{order}/return',     [OrderController::class, 'return']);
 });

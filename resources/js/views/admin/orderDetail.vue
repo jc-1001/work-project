@@ -18,6 +18,8 @@ const STATUS_CONFIG = {
     pending: { label: "訂單已成立", color: "warning" },
     shipping: { label: "出貨中", color: "info" },
     completed: { label: "已完成", color: "success" },
+    cancelled: { label: "訂單已取消", color: "error" },
+    returned: { label: "訂單已退貨", color: "indigo" },
 };
 
 const NEXT_STATUS = { pending: "shipping", shipping: "completed" };
@@ -25,6 +27,44 @@ const NEXT_ACTION = { pending: "確認出貨", shipping: "確認完成" };
 
 const nextStatus = computed(() => NEXT_STATUS[order.value?.status]);
 const nextAction = computed(() => NEXT_ACTION[order.value?.status]);
+
+const cancelling = ref(false);
+const cancelDialog = ref(false);
+
+const returning = ref(false);
+const returnDialog = ref(false);
+
+function confirmReturn() {
+    returning.value = true;
+    api.patch(`/api/admin/orders/${orderId}/return`)
+        .then(() => {
+            order.value.status = "returned";
+            notify("訂單已退貨");
+        })
+        .catch((err) => {
+            notify(err.response?.data?.message ?? "退貨操作失敗，請稍後再試", "error");
+        })
+        .finally(() => {
+            returning.value = false;
+            returnDialog.value = false;
+        });
+}
+
+function confirmCancel() {
+    cancelling.value = true;
+    api.patch(`/api/admin/orders/${orderId}/cancel`)
+        .then(() => {
+            order.value.status = "cancelled";
+            notify("訂單已取消");
+        })
+        .catch((err) => {
+            notify(err.response?.data?.message ?? "取消失敗，請稍後再試", "error");
+        })
+        .finally(() => {
+            cancelling.value = false;
+            cancelDialog.value = false;
+        });
+}
 
 function notify(text, color = "success") {
     snackbar.value = { show: true, text, color };
@@ -94,7 +134,27 @@ onMounted(fetchOrder);
 <template>
     <AdminLayout>
         <div class="d-flex justify-space-between align-center mb-6">
-            <h1>訂單詳情</h1>
+            <div class="d-flex flex-row align-center ga-4">
+                <h1>訂單詳情</h1>
+                <v-btn
+                    v-if="order?.status === 'pending'"
+                    variant="tonal"
+                    color="error"
+                    prepend-icon="mdi-package-variant-closed-remove"
+                    :loading="cancelling"
+                    @click="cancelDialog = true"
+                    >取消訂單</v-btn
+                >
+                <v-btn
+                    v-else-if="order?.status === 'completed'"
+                    variant="tonal"
+                    color="indigo"
+                    prepend-icon="mdi-undo"
+                    :loading="returning"
+                    @click="returnDialog = true"
+                    >退貨</v-btn
+                >
+            </div>
             <div class="d-flex align-center ga-2">
                 <v-chip
                     v-if="order"
@@ -523,6 +583,44 @@ onMounted(fetchOrder);
         >
             {{ snackbar.text }}
         </v-snackbar>
+
+        <v-dialog v-model="cancelDialog" max-width="400">
+            <v-card>
+                <v-card-title class="text-h6 pt-5 px-6">確認取消訂單？</v-card-title>
+                <v-card-text class="px-6 text-grey-darken-1">
+                    取消後庫存將自動回補，此操作無法還原。
+                </v-card-text>
+                <v-card-actions class="pb-4 px-6">
+                    <v-spacer />
+                    <v-btn variant="text" @click="cancelDialog = false">返回</v-btn>
+                    <v-btn
+                        color="error"
+                        variant="tonal"
+                        :loading="cancelling"
+                        @click="confirmCancel"
+                    >確認取消</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="returnDialog" max-width="400">
+            <v-card>
+                <v-card-title class="text-h6 pt-5 px-6">確認退貨？</v-card-title>
+                <v-card-text class="px-6 text-grey-darken-1">
+                    退貨後庫存將自動回補，此操作無法還原。
+                </v-card-text>
+                <v-card-actions class="pb-4 px-6">
+                    <v-spacer />
+                    <v-btn variant="text" @click="returnDialog = false">返回</v-btn>
+                    <v-btn
+                        color="indigo"
+                        variant="tonal"
+                        :loading="returning"
+                        @click="confirmReturn"
+                    >確認退貨</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </AdminLayout>
 </template>
 
