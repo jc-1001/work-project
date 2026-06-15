@@ -29,6 +29,11 @@ class User extends Authenticatable
         'is_active'         => 'boolean',
     ];
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);

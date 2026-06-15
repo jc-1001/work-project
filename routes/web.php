@@ -10,6 +10,7 @@ use App\Http\Controllers\AdvertisementController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ComplaintController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -161,4 +162,16 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
     Route::patch('/contactMessages/batch-status',                [ContactMessageController::class, 'batchUpdateStatus']);
     Route::patch('/contactMessages/{contactMessage}/status',     [ContactMessageController::class, 'updateStatus']);
     Route::patch('/contactMessages/{contactMessage}/reply',      [ContactMessageController::class, 'adminReplyStore']);
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/complaints',      [PageController::class, 'adminComplaintIndex']);
+    Route::get('/complaints/{id}', [PageController::class, 'adminComplaintShow'])->where('id', '[0-9]+');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
+    Route::get('/complaints',               [ComplaintController::class, 'adminIndex']);
+    Route::get('/complaints/{id}',          [ComplaintController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::patch('/complaints/{id}',        [ComplaintController::class, 'updateStatus'])->where('id', '[0-9]+');
+    Route::post('/complaints/batch',        [ComplaintController::class, 'batchUpdateStatus']);
 });

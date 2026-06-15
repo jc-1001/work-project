@@ -37,4 +37,8 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

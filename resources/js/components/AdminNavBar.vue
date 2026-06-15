@@ -1,54 +1,56 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useDisplay } from "vuetify";
-import { useAdminAuth } from "../composables/useAdminAuth";
-import api from "../bootstrap";
+    import { ref, computed, onMounted } from 'vue'
+    import { useDisplay } from 'vuetify'
+    import { useAdminAuth } from '../composables/useAdminAuth'
+    import api from '../bootstrap'
 
 const { user, isSuperAdmin, clearUser, fetchUser } = useAdminAuth();
 
-onMounted(() => {
-    fetchUser();
-});
-const { mobile } = useDisplay();
-const drawer = ref(false);
-const snackbar = ref({ show: false, text: "", color: "success" });
+    onMounted(() => {
+        fetchUser()
+    })
+    const { mobile } = useDisplay()
+    const drawer = ref(false)
+    const snackbar = ref({ show: false, text: '', color: 'success' })
 
-const showMessage = (text, color = "success") => {
-    snackbar.value = { show: true, text, color };
-};
+    const showMessage = (text, color = 'success') => {
+        snackbar.value = { show: true, text, color }
+    }
 
 const menuItems = computed(() => [
-    { name: "後台儀錶板",  icon: "mdi-monitor-dashboard", path: "/admin/dashboard" },
-    { name: "商品管理",   icon: "mdi-package-variant",    path: "/admin/products" },
-    { name: "會員列表",   icon: "mdi-account-group",      path: "/admin/user" },
-    { name: "訂單管理",   icon: "mdi-clipboard-list",     path: "/admin/orders" },
-    { name: "廣告管理",   icon: "mdi-image-multiple",     path: "/admin/advertisements" },
-    { name: "優惠碼管理", icon: "mdi-ticket-percent",     path: "/admin/coupons" },
-    { name: "客服回覆",   icon: "mdi-face-agent",         path: "/admin/reply" },
+    { name: "後台儀錶板",      icon: "mdi-monitor-dashboard",      path: "/admin/dashboard" },
+    { name: "商品管理",        icon: "mdi-package-variant",         path: "/admin/products" },
+    { name: "會員列表",        icon: "mdi-account-group",           path: "/admin/user" },
+    { name: "訂單管理",        icon: "mdi-clipboard-list",          path: "/admin/orders" },
+    { name: "廣告管理",        icon: "mdi-image-multiple",          path: "/admin/advertisements" },
+    { name: "優惠碼管理",      icon: "mdi-ticket-percent",          path: "/admin/coupons" },
+    { name: "客服回覆",        icon: "mdi-face-agent",              path: "/admin/reply" },
+    { name: "產品評論檢舉管理", icon: "mdi-comment-account-outline", path: "/admin/complaints" },
     ...(isSuperAdmin.value
         ? [{ name: "管理員管理", icon: "mdi-shield-account", path: "/admin/administrators" }]
         : []),
 ]);
 
-const navigate = (path) => {
-    window.location.href = path;
-};
+    const navigate = (path) => {
+        drawer.value = false
+        window.location.href = path
+    }
 
-function logout() {
-    api.post("/admin/logout")
-        .then(() => {
-            showMessage("登出成功");
-        })
-        .catch(() => {
-            showMessage("登出失敗，請稍後再試", "error");
-        })
-        .finally(() => {
-            clearUser();
-            setTimeout(() => {
-                window.location.href = "/admin/login";
-            }, 1000);
-        });
-}
+    function logout() {
+        api.post('/admin/logout')
+            .then(() => {
+                showMessage('登出成功')
+            })
+            .catch(() => {
+                showMessage('登出失敗，請稍後再試', 'error')
+            })
+            .finally(() => {
+                clearUser()
+                setTimeout(() => {
+                    window.location.href = '/admin/login'
+                }, 1000)
+            })
+    }
 </script>
 
 <template>
@@ -61,17 +63,10 @@ function logout() {
                 :key="item.path"
                 :prepend-icon="item.icon"
                 :title="item.name"
-                @click="
-                    navigate(item.path);
-                    drawer = false;
-                "
+                @click="navigate(item.path)"
             />
             <v-divider class="my-2" />
-            <v-list-item
-                prepend-icon="mdi-logout"
-                title="登出"
-                @click="logout"
-            />
+            <v-list-item prepend-icon="mdi-logout" title="登出" @click="logout" />
         </v-list>
     </v-navigation-drawer>
 
@@ -79,14 +74,7 @@ function logout() {
         <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer" />
         <v-app-bar-title v-if="mobile">後台管理</v-app-bar-title>
         <template v-if="!mobile">
-            <v-btn
-                v-for="item in menuItems"
-                :key="item.path"
-                variant="text"
-                :prepend-icon="item.icon"
-                @click="navigate(item.path)"
-                >{{ item.name }}</v-btn
-            >
+            <v-btn v-for="item in menuItems" :key="item.path" variant="text" :prepend-icon="item.icon" @click="navigate(item.path)">{{ item.name }}</v-btn>
         </template>
 
         <v-spacer />
@@ -98,12 +86,7 @@ function logout() {
         >
     </v-app-bar>
 
-    <v-snackbar
-        v-model="snackbar.show"
-        :color="snackbar.color"
-        timeout="1000"
-        location="top"
-    >
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="1000" location="top">
         {{ snackbar.text }}
     </v-snackbar>
 </template>

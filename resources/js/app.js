@@ -29,6 +29,8 @@ import CouponDetail              from "./views/admin/coupon/CouponDetail.vue";
 import AdminDashboard            from "./views/admin/Dashboard.vue";
 import CustomerServiceList       from "./views/admin/Reply/CustomerServiceList.vue";
 import ReplyCustomer             from "./views/admin/Reply/ReplyCustomer.vue";
+import AdminComplaintsIndex      from "./views/admin/ComplaintIndex.vue";
+import AdminComplaintShow        from "./views/admin/ComplaintDetail.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -56,6 +58,8 @@ const pageMap = {
     'admin-dashboard':             AdminDashboard,
     'customer-service-index':      CustomerServiceList,
     'customer-service-reply':      ReplyCustomer,
+    'admin-complaints-index':      AdminComplaintsIndex,
+    'admin-complaints-show':       AdminComplaintShow,
 }
 
 const vuetify = createVuetify();
