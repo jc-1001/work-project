@@ -4,7 +4,7 @@ import { useDisplay } from "vuetify";
 import { useAdminAuth } from "../composables/useAdminAuth";
 import api from "../bootstrap";
 
-const { clearUser, fetchUser } = useAdminAuth();
+const { user, isSuperAdmin, clearUser, fetchUser } = useAdminAuth();
 
 onMounted(() => {
     fetchUser();
@@ -22,6 +22,9 @@ const menuItems = computed(() => [
     { name: "會員列表", icon: "mdi-account-group",    path: "/admin/user" },
     { name: "訂單管理", icon: "mdi-clipboard-list",   path: "/admin/orders" },
     { name: "廣告管理", icon: "mdi-image-multiple",   path: "/admin/advertisements" },
+    ...(isSuperAdmin.value
+        ? [{ name: "管理員管理", icon: "mdi-shield-account", path: "/admin/administrators" }]
+        : []),
 ]);
 
 const navigate = (path) => {
@@ -72,7 +75,6 @@ function logout() {
     <v-app-bar elevation="1">
         <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer" />
         <v-app-bar-title v-if="mobile">後台管理</v-app-bar-title>
-
         <template v-if="!mobile">
             <v-btn
                 v-for="item in menuItems"
@@ -85,6 +87,9 @@ function logout() {
         </template>
 
         <v-spacer />
+        <span v-if="user" class="text-body-2 text-medium-emphasis mr-2">{{
+            user.name
+        }}</span>
         <v-btn variant="text" prepend-icon="mdi-logout" @click="logout"
             >登出</v-btn
         >

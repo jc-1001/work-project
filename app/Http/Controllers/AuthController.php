@@ -109,10 +109,6 @@ class AuthController extends Controller
         $user = $request->user();
         $user->load('roles');
 
-        if ($user->isAdmin()) {
-            return response()->json(['message' => '管理員帳號不可使用前台功能'], 403);
-        }
-
         return response()->json([
             'user' => [
                 'id'       => $user->id,

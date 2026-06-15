@@ -16,7 +16,7 @@
     <div>
         <p class="code">403</p>
         <p class="message">您沒有存取此頁面的權限</p>
-        <a href="{{ url('/') }}">回到首頁</a>
+        <a href="{{ url()->previous('/') }}">返回上一頁</a>
     </div>
 </body>
 </html>

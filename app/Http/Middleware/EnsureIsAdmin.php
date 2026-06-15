@@ -29,7 +29,7 @@ class EnsureIsAdmin
         if (!$user->is_active) {
             return $request->expectsJson()
                 ? response()->json(['message' => '帳號已停用'], 403)
-                : redirect('/admin/login');
+                : redirect()->route('admin.login');
         }
 
         return $next($request);

@@ -16,7 +16,7 @@
     <div>
         <p class="code">404</p>
         <p class="message">找不到您要瀏覽的頁面</p>
-        <a href="{{ url('/') }}">回到首頁</a>
+        <a href="{{ url()->previous('/') }}">返回上一頁</a>
     </div>
 </body>
 </html>

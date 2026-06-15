@@ -9,6 +9,7 @@ use App\Http\Controllers\AdvertisementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 
+
 /*
 |--------------------------------------------------------------------------
 | 認證頁面（僅未登入者可進入，已登入者自動轉首頁）
@@ -55,7 +56,7 @@ Route::get('/advertisement/active', [AdvertisementController::class, 'active']);
 Route::get('/',          [PageController::class, 'home'])->name('front.home');
 Route::get('/shop',      [PageController::class, 'shopIndex'])->name('front.shop');
 Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');
-
+Route::get('/403',       [PageController::class, 'forbidden']);
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +94,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/orders',      [PageController::class, 'adminOrdersIndex']);
     Route::get('/orders/{id}', [PageController::class, 'adminOrdersShow'])->where('id', '[0-9]+');
+
+    Route::get('/forbidden', [PageController::class, 'adminForbidden'])->name('admin.forbidden');
+
+    Route::middleware('super_admin')->group(function () {
+        Route::get('/administrators',      [PageController::class, 'administratorsIndex'])->name('administrators.index');
+        Route::get('/administrators/{id}', [PageController::class, 'administratorsShow'])->where('id', '[0-9]+')->name('administrators.show');
+    });
 });
 
 Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
@@ -102,13 +110,6 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
     Route::post('/products',                            [ProductController::class, 'store']);
     Route::post('/products/{id}',                       [ProductController::class, 'update'])->where('id', '[0-9]+');
     Route::delete('/products/{id}/images/{imageId}',    [ProductController::class, 'deleteImage'])->where(['id' => '[0-9]+', 'imageId' => '[0-9]+']);
-});
-/*
-|--------------------------------------------------------------------------
-| 後台管理 API（auth + admin，由 Vue 元件透過 axios 呼叫）
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
 
     Route::get('/users',                        [UserController::class, 'adminIndex']);
     Route::get('/users/{id}',                   [UserController::class, 'adminShow'])->where('id', '[0-9]+');
@@ -120,4 +121,12 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
     Route::patch('/orders/{order}/status',     [OrderController::class, 'updateStatus']);
     Route::patch('/orders/{order}/cancel',     [OrderController::class, 'cancel']);
     Route::patch('/orders/{order}/return',     [OrderController::class, 'return']);
+});
+
+Route::middleware(['auth', 'admin', 'super_admin'])->prefix('api/admin')->group(function () {
+    Route::get('/administrators',                        [UserController::class, 'administratorIndex']);
+    Route::get('/administrators/{id}',                   [UserController::class, 'administratorShow'])->where('id', '[0-9]+');
+    Route::patch('/administrators/{id}/toggle-active',   [UserController::class, 'administratorToggleActive'])->where('id', '[0-9]+');
+    Route::patch('/administrators/{id}',                 [UserController::class, 'adminUpdate'])->where('id', '[0-9]+');
+    Route::post('/administrators',                       [UserController::class, 'adminStore']);
 });
