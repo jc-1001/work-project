@@ -48,4 +48,13 @@ class PageController extends Controller
     {
         return view('admin.user-show', ['id' => $id]);
     }
+    public function adminOrdersIndex()
+    {
+        return view('admin.orders-index');
+    }
+
+    public function adminOrdersShow(int $id)
+    {
+        return view('admin.orders-show', ['id' => $id]);
+    }
 }

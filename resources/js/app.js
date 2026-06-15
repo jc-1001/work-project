@@ -16,6 +16,8 @@ import AdminProductShow from "./views/admin/productDetail.vue";
 import AdminProductNew from "./views/admin/productNew.vue";
 import AdminUsersIndex from "./views/admin/user.vue";
 import AdminUsersShow from "./views/admin/userDetail.vue";
+import AdminOrdersIndex from "./views/admin/orders.vue";
+import AdminOrdersShow from "./views/admin/orderDetail.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -33,6 +35,8 @@ const pageMap = {
     'admin-login': AdminLogin,
     'admin-user-index': AdminUsersIndex,
     'admin-user-show':  AdminUsersShow,
+    'admin-orders-index': AdminOrdersIndex,
+    'admin-orders-show': AdminOrdersShow,
 }
 
 const vuetify = createVuetify();

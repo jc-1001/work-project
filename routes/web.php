@@ -6,6 +6,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/user',       [PageController::class, 'adminUsersIndex'])->name('admin.users.index');
     Route::get('/user/{id}',  [PageController::class, 'adminUsersShow'])->where('id', '[0-9]+')->name('admin.users.show');
+
+    Route::get('/orders',      [PageController::class, 'adminOrdersIndex']);
+    Route::get('/orders/{id}', [PageController::class, 'adminOrdersShow'])->where('id', '[0-9]+');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
@@ -92,7 +96,12 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
 */
 Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
 
-    Route::get('/users',                      [UserController::class, 'adminIndex']);
-    Route::get('/users/{id}',                 [UserController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::get('/users',                        [UserController::class, 'adminIndex']);
+    Route::get('/users/{id}',                   [UserController::class, 'adminShow'])->where('id', '[0-9]+');
     Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive']);
+
+    Route::get('/orders',                      [OrderController::class, 'adminIndex']);
+    Route::get('/orders/{id}',                 [OrderController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::patch('/orders/batch-status',       [OrderController::class, 'batchUpdateStatus']);
+    Route::patch('/orders/{order}/status',     [OrderController::class, 'updateStatus']);
 });
