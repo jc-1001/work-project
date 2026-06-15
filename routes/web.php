@@ -89,7 +89,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/me',        [AdminAuthController::class, 'me']);
     Route::post('/logout',   [AdminAuthController::class, 'logout']);
 
-    Route::get('/dashboard', [PageController::class, 'adminDashboard'])->name('admin.dashboard');
+    Route::get('/dashboard',       [PageController::class, 'adminDashboard'])->name('admin.dashboard');
+    Route::get('/dashboard/stats', [DashboardController::class, 'index']);
 
     Route::get('/products',         [PageController::class, 'adminProductsIndex']);
     Route::get('/products/create',   [PageController::class, 'adminProductsCreate']);
@@ -113,8 +114,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
-    Route::get('/dashboard/stats', [DashboardController::class, 'index']);
-
     Route::patch('/products/batch-status',              [ProductController::class, 'batchUpdateStatus']);
     Route::get('/products',                             [ProductController::class, 'index']);
     Route::get('/products/{id}',                        [ProductController::class, 'show'])->where('id', '[0-9]+');
