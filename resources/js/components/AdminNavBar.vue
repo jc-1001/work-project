@@ -18,9 +18,10 @@ const showMessage = (text, color = "success") => {
 };
 
 const menuItems = computed(() => [
-    { name: "商品管理", icon: "mdi-package-variant", path: "/admin/products" },
-    { name: "會員列表", icon: "mdi-account-group", path: "/admin/user" },
-    { name: "訂單管理", icon: "mdi-clipboard-list", path: "/admin/orders" },
+    { name: "商品管理", icon: "mdi-package-variant",  path: "/admin/products" },
+    { name: "會員列表", icon: "mdi-account-group",    path: "/admin/user" },
+    { name: "訂單管理", icon: "mdi-clipboard-list",   path: "/admin/orders" },
+    { name: "廣告管理", icon: "mdi-image-multiple",   path: "/admin/advertisements" },
 ]);
 
 const navigate = (path) => {

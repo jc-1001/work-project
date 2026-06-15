@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AdvertisementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 
@@ -44,6 +45,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/categories',    [ProductController::class, 'categories']);
 Route::get('/products',      [ProductController::class, 'frontIndex']);
 Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
+
+Route::get('/advertisement/active', [AdvertisementController::class, 'active']);
 /*
 |--------------------------------------------------------------------------
 | 前台 Blade 頁面（公開，不需登入）
@@ -67,6 +70,17 @@ Route::middleware('auth')->group(function () {});
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/advertisements',      [PageController::class, 'adminAdvertisements'])->name('admin.advertisements');
+    Route::get('/advertisements/{id}', [PageController::class, 'adminAdvertisementShow'])->where('id', '[0-9]+')->name('admin.advertisements.show');
+
+    Route::prefix('api')->group(function () {
+        Route::get('/advertisements',         [AdvertisementController::class, 'index']);
+        Route::post('/advertisements',        [AdvertisementController::class, 'store']);
+        Route::get('/advertisements/{id}',    [AdvertisementController::class, 'show'])->where('id', '[0-9]+');
+        Route::put('/advertisements/{id}',    [AdvertisementController::class, 'update'])->where('id', '[0-9]+');
+        Route::delete('/advertisements/{id}', [AdvertisementController::class, 'destroy'])->where('id', '[0-9]+');
+    });
+
     Route::get('/me',        [AdminAuthController::class, 'me']);
     Route::post('/logout',   [AdminAuthController::class, 'logout']);
 

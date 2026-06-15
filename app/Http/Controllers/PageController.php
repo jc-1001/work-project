@@ -48,6 +48,7 @@ class PageController extends Controller
     {
         return view('admin.user-show', ['id' => $id]);
     }
+
     public function adminOrdersIndex()
     {
         return view('admin.orders-index');
@@ -56,5 +57,20 @@ class PageController extends Controller
     public function adminOrdersShow(int $id)
     {
         return view('admin.orders-show', ['id' => $id]);
+    }
+
+    public function adminAdvertisements()
+    {
+        return view('admin.advertisements');
+    }
+
+    public function adminAdvertisementCreate()
+    {
+        return view('admin.advertisement-create');
+    }
+
+    public function adminAdvertisementShow(int $id)
+    {
+        return view('admin.advertisements-show', ['id' => $id]);
     }
 }
