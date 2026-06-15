@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
+use App\Mail\OrderStatusChanged;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -63,6 +65,13 @@ class OrderController extends Controller
 
         $order->update(['status' => $request->status]);
 
+        $order->load('user');
+        try {
+            Mail::to($order->user->email)->queue(new OrderStatusChanged($order));
+        } catch (\Exception $e) {
+            report($e);
+        }
+
         return response()->json(['message' => '狀態已更新', 'status' => $order->status]);
     }
 
@@ -81,8 +90,10 @@ class OrderController extends Controller
             return response()->json(['message' => '無效的目標狀態'], 422);
         }
 
+        $updatedIds = [];
+
         try {
-            DB::transaction(function () use ($request, $targetStatus, $requiredCurrent) {
+            DB::transaction(function () use ($request, $targetStatus, $requiredCurrent, &$updatedIds) {
                 $orders = Order::whereIn('id', $request->ids)
                     ->lockForUpdate()
                     ->get(['id', 'status']);
@@ -93,10 +104,19 @@ class OrderController extends Controller
                     throw new \RuntimeException("有 {$invalidCount} 筆訂單狀態不符，無法批次更新");
                 }
 
-                Order::whereIn('id', $request->ids)->update(['status' => $targetStatus]);
+                $lockedIds = $orders->pluck('id')->all();
+                Order::whereIn('id', $lockedIds)->update(['status' => $targetStatus]);
+                $updatedIds = $lockedIds;
             });
         } catch (\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        try {
+            Order::whereIn('id', $updatedIds)->with('user')->get()
+                ->each(fn($order) => Mail::to($order->user->email)->queue(new OrderStatusChanged($order)));
+        } catch (\Exception $e) {
+            report($e);
         }
 
         return response()->json(['message' => '批次更新成功']);
@@ -118,7 +138,7 @@ class OrderController extends Controller
         ]);
 
         try {
-            return DB::transaction(function () use ($validated) {
+            $order = DB::transaction(function () use ($validated) {
 
                 $itemIds = collect($validated['items'])->pluck('id');
 
@@ -166,10 +186,7 @@ class OrderController extends Controller
                     $product->decrement('stock', $item['quantity']);
                 }
 
-                return response()->json([
-                    'message'  => '訂單已成功送出！',
-                    'order_id' => $order->id,
-                ], 201);
+                return $order;
             });
         } catch (\Exception $e) {
             $userFacingMessages = ['不存在或已下架', '庫存不足'];
@@ -179,5 +196,17 @@ class OrderController extends Controller
                 'message' => $isUserFacing ? $e->getMessage() : '訂單建立失敗，請稍後再試',
             ], 422);
         }
+
+        $order->load('items');
+        try {
+            Mail::to(auth()->user()->email)->queue(new OrderStatusChanged($order));
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return response()->json([
+            'message'  => '訂單已成功送出！',
+            'order_id' => $order->id,
+        ], 201);
     }
 }

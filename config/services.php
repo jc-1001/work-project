@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'shipping' => [
+        'fee' => (float) env('VITE_SHIPPING_FEE', 60),
+    ],
+
 ];
