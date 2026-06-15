@@ -26,6 +26,7 @@ import AdminAdministratorsShow   from "./views/admin/adminDetail.vue";
 import ShopOrder                 from "./views/front/shop/ShopOrder.vue";
 import CouponList                from "./views/admin/coupon/CouponList.vue";
 import CouponDetail              from "./views/admin/coupon/CouponDetail.vue";
+import AdminDashboard            from "./views/admin/Dashboard.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -50,6 +51,7 @@ const pageMap = {
     'shop-order':                  ShopOrder,
     'coupon-list':                 CouponList,
     'coupon-detail':               CouponDetail,
+    'admin-dashboard':             AdminDashboard,
 }
 
 const vuetify = createVuetify();

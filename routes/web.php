@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AdvertisementController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -88,6 +89,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/me',        [AdminAuthController::class, 'me']);
     Route::post('/logout',   [AdminAuthController::class, 'logout']);
 
+    Route::get('/dashboard', [PageController::class, 'adminDashboard'])->name('admin.dashboard');
+
     Route::get('/products',         [PageController::class, 'adminProductsIndex']);
     Route::get('/products/create',   [PageController::class, 'adminProductsCreate']);
     Route::get('/products/{id}',     [PageController::class, 'adminProductsShow'])->where('id', '[0-9]+');
@@ -110,6 +113,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
+    Route::get('/dashboard/stats', [DashboardController::class, 'index']);
+
     Route::patch('/products/batch-status',              [ProductController::class, 'batchUpdateStatus']);
     Route::get('/products',                             [ProductController::class, 'index']);
     Route::get('/products/{id}',                        [ProductController::class, 'show'])->where('id', '[0-9]+');

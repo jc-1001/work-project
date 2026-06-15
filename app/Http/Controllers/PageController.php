@@ -108,4 +108,9 @@ class PageController extends Controller
     {
         return view('admin.coupon-detail', ['id' => $id]);
     }
+
+    public function adminDashboard()
+    {
+        return view('admin.dashboard');
+    }
 }

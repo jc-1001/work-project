@@ -55,7 +55,7 @@ class AdminAuthController extends Controller
 
         return response()->json([
             'message'  => '登入成功',
-            'redirect' => '/admin/products',
+            'redirect' => '/admin/dashboard',
             'user'     => [
                 'id'    => $user->id,
                 'name'  => $user->name,
