@@ -24,6 +24,7 @@ const menuItems = computed(() => [
     { name: "訂單管理",   icon: "mdi-clipboard-list",     path: "/admin/orders" },
     { name: "廣告管理",   icon: "mdi-image-multiple",     path: "/admin/advertisements" },
     { name: "優惠碼管理", icon: "mdi-ticket-percent",     path: "/admin/coupons" },
+    { name: "客服回覆",   icon: "mdi-face-agent",         path: "/admin/reply" },
     ...(isSuperAdmin.value
         ? [{ name: "管理員管理", icon: "mdi-shield-account", path: "/admin/administrators" }]
         : []),

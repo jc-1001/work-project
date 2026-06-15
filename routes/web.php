@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
@@ -52,6 +53,7 @@ Route::get('/products',      [ProductController::class, 'frontIndex']);
 Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
 
 Route::get('/advertisement/active', [AdvertisementController::class, 'active']);
+Route::post('/newMessage',          [ContactMessageController::class, 'store']);
 /*
 |--------------------------------------------------------------------------
 | 前台 Blade 頁面（公開，不需登入）
@@ -146,4 +148,17 @@ Route::middleware(['auth', 'admin', 'super_admin'])->prefix('api/admin')->group(
     Route::patch('/administrators/{id}/toggle-active',   [UserController::class, 'administratorToggleActive'])->where('id', '[0-9]+');
     Route::patch('/administrators/{id}',                 [UserController::class, 'adminUpdate'])->where('id', '[0-9]+');
     Route::post('/administrators',                       [UserController::class, 'adminStore']);
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/reply',      [PageController::class, 'adminReplyList']);
+    Route::get('/reply/{id}', [PageController::class, 'adminReply'])->where('id', '[0-9]+');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
+    Route::get('/contactMessages',                               [ContactMessageController::class, 'adminIndex']);
+    Route::get('/contactMessages/{id}',                          [ContactMessageController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::patch('/contactMessages/batch-status',                [ContactMessageController::class, 'batchUpdateStatus']);
+    Route::patch('/contactMessages/{contactMessage}/status',     [ContactMessageController::class, 'updateStatus']);
+    Route::patch('/contactMessages/{contactMessage}/reply',      [ContactMessageController::class, 'adminReplyStore']);
 });

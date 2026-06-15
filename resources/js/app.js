@@ -27,6 +27,8 @@ import ShopOrder                 from "./views/front/shop/ShopOrder.vue";
 import CouponList                from "./views/admin/coupon/CouponList.vue";
 import CouponDetail              from "./views/admin/coupon/CouponDetail.vue";
 import AdminDashboard            from "./views/admin/Dashboard.vue";
+import CustomerServiceList       from "./views/admin/Reply/CustomerServiceList.vue";
+import ReplyCustomer             from "./views/admin/Reply/ReplyCustomer.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -52,6 +54,8 @@ const pageMap = {
     'coupon-list':                 CouponList,
     'coupon-detail':               CouponDetail,
     'admin-dashboard':             AdminDashboard,
+    'customer-service-index':      CustomerServiceList,
+    'customer-service-reply':      ReplyCustomer,
 }
 
 const vuetify = createVuetify();
