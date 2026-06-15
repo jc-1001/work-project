@@ -6,9 +6,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AdvertisementController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
-
+use App\Http\Controllers\CouponController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,15 +17,14 @@ use App\Http\Controllers\OrderController;
 */
 
 Route::middleware('guest')->group(function () {
-    Route::get('/login',       [AuthController::class, 'showLogin'])->name('login');
-    Route::get('/register',    [AuthController::class, 'showRegister'])->name('register');
-    Route::get('/admin/login', [PageController::class, 'adminLogin'])->name('admin.login');
+    Route::get('/login',        [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/register',     [AuthController::class, 'showRegister'])->name('register');
+    Route::get('/admin/login',  [PageController::class, 'adminLogin'])->name('admin.login');
+    Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1');
 });
 
-
-Route::post('/login',       [AuthController::class, 'login'])->middleware('throttle:5,1');
-Route::post('/register',    [AuthController::class, 'register'])->middleware('throttle:5,1');
-Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout',     [AuthController::class, 'logout']);
     Route::get('/me',          [AuthController::class, 'me']);
     Route::put('/user/update', [UserController::class, 'update']);
+
+    Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:5,1');
+
+    Route::post('/api/coupons/validate', [CouponController::class, 'validateCoupon']);
 });
 
 /*
@@ -97,6 +100,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/forbidden', [PageController::class, 'adminForbidden'])->name('admin.forbidden');
 
+    Route::get('/coupons',      [PageController::class, 'couponIndex'])->name('admin.coupons.index');
+    Route::get('/coupons/{id}', [PageController::class, 'couponDetail'])->where('id', '[0-9]+')->name('admin.coupons.show');
+
     Route::middleware('super_admin')->group(function () {
         Route::get('/administrators',      [PageController::class, 'administratorsIndex'])->name('administrators.index');
         Route::get('/administrators/{id}', [PageController::class, 'administratorsShow'])->where('id', '[0-9]+')->name('administrators.show');
@@ -121,6 +127,13 @@ Route::middleware(['auth', 'admin'])->prefix('api/admin')->group(function () {
     Route::patch('/orders/{order}/status',     [OrderController::class, 'updateStatus']);
     Route::patch('/orders/{order}/cancel',     [OrderController::class, 'cancel']);
     Route::patch('/orders/{order}/return',     [OrderController::class, 'return']);
+
+    Route::get('/coupons',                       [CouponController::class, 'adminIndex']);
+    Route::post('/coupons',                      [CouponController::class, 'store']);
+    Route::get('/coupons/{id}',                  [CouponController::class, 'adminShow'])->where('id', '[0-9]+');
+    Route::put('/coupons/{id}',                  [CouponController::class, 'update'])->where('id', '[0-9]+');
+    Route::patch('/coupons/{id}/toggle-active',  [CouponController::class, 'toggleActive'])->where('id', '[0-9]+');
+    Route::patch('/coupons/batch-status',        [CouponController::class, 'batchUpdateStatus']);
 });
 
 Route::middleware(['auth', 'admin', 'super_admin'])->prefix('api/admin')->group(function () {

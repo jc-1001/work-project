@@ -32,7 +32,7 @@ return [
     ],
 
     'shipping' => [
-        'fee' => (float) env('VITE_SHIPPING_FEE', 60),
+        'fee' => env('SHIPPING_FEE', 60),
     ],
 
 ];

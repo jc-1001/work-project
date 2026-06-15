@@ -23,6 +23,9 @@ import AdvertisementDetail       from "./views/admin/Ad/AdDetail.vue";
 import AdminForbidden            from "./views/admin/AdminForbidden.vue";
 import AdminAdministratorsIndex  from "./views/admin/admin.vue";
 import AdminAdministratorsShow   from "./views/admin/adminDetail.vue";
+import ShopOrder                 from "./views/front/shop/ShopOrder.vue";
+import CouponList                from "./views/admin/coupon/CouponList.vue";
+import CouponDetail              from "./views/admin/coupon/CouponDetail.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -44,6 +47,9 @@ const pageMap = {
     'admin-forbidden':             AdminForbidden,
     'admin-administrators-index':  AdminAdministratorsIndex,
     'admin-administrators-show':   AdminAdministratorsShow,
+    'shop-order':                  ShopOrder,
+    'coupon-list':                 CouponList,
+    'coupon-detail':               CouponDetail,
 }
 
 const vuetify = createVuetify();
