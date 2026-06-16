@@ -75,6 +75,23 @@
                                     autocomplete="current-password"
                                     @keyup.enter="login"
                                 />
+                                <div class="d-flex justify-space-between mt-n3">
+                                    <v-btn
+                                        variant="plain"
+                                        size="medium"
+                                        color="primary"
+                                        prepend-icon="mdi-menu-left"
+                                        class="text-caption px-1"
+                                        @click="window.location.href = '/'"
+                                    >回到首頁</v-btn>
+                                    <v-btn
+                                        variant="plain"
+                                        size="medium"
+                                        color="primary"
+                                        class="text-caption px-1"
+                                        @click="window.location.href = '/forgot-password'"
+                                    >忘記密碼？</v-btn>
+                                </div>
                             </v-card-text>
                             <v-card-actions class="flex-column px-6 pb-6 ga-3">
                                 <v-btn block variant="tonal" color="primary" size="large" rounded="lg" :loading="isSubmitting" @click="login">登入</v-btn>

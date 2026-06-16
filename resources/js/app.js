@@ -35,6 +35,8 @@ import Profile                   from "./views/front/profile/Profile.vue";
 import ProfileOrder              from "./views/front/profile/ProfileOrder.vue";
 import ShopCart                  from "./views/front/shop/ShopCart.vue";
 import Favorites                 from "./components/favorites.vue";
+import ForgotPassword            from "./views/front/ForgotPassword.vue";
+import ResetPassword             from "./views/front/ResetPassword.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -68,6 +70,8 @@ const pageMap = {
     'profile-order':               ProfileOrder,
     'shop-cart':                   ShopCart,
     'favorites':                   Favorites,
+    'forgot-password':             ForgotPassword,
+    'reset-password':              ResetPassword,
 }
 
 const vuetify = createVuetify();

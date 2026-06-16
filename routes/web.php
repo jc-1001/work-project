@@ -25,6 +25,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/register',     [AuthController::class, 'showRegister'])->name('register');
     Route::get('/admin/login',  [PageController::class, 'adminLogin'])->name('admin.login');
     Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1');
+
+    Route::get('/forgot-password',  [PageController::class, 'forgotPassword']);
+    Route::get('/reset-password',   [PageController::class, 'resetPassword']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
+    Route::post('/reset-password',  [AuthController::class, 'resetPassword'])->middleware('throttle:3,1');
 });
 
 Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
@@ -55,9 +60,6 @@ Route::get('/ecpay/return',  [EcpayController::class, 'return'])->name('ecpay.re
 | 前台公開 API（無需登入）
 |--------------------------------------------------------------------------
 */
-Route::get('/categories',    [ProductController::class, 'categories']);
-Route::get('/products',      [ProductController::class, 'frontIndex']);
-Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
 
 Route::get('/advertisement/active', [AdvertisementController::class, 'active']);
 Route::post('/newMessage',          [ContactMessageController::class, 'store']);

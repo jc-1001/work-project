@@ -45,6 +45,16 @@ class PageController extends Controller
         return view('frontend.favorite-index');
     }
 
+        public function forgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function resetPassword()
+    {
+        return view('auth.reset-password');
+    }
+
     public function adminLogin()
     {
         return view('auth.admin-login');

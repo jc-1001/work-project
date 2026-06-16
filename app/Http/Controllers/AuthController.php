@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ResetPasswordMail;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -102,6 +105,54 @@ class AuthController extends Controller
             'message' => '登出成功',
         ]);
     }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            /** @var \Illuminate\Auth\Passwords\PasswordBroker $broker */
+            $broker   = Password::broker();
+            $token    = $broker->createToken($user);
+            $resetUrl = url('/reset-password') . '?token=' . $token . '&email=' . urlencode($user->email);
+            Mail::to($user->email)->send(new ResetPasswordMail($resetUrl));
+        }
+
+        return response()->json(['message' => '若此 Email 已註冊，重設信件已寄出']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token'                 => 'required',
+            'email'                 => 'required|email',
+            'password'              => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required',
+        ]);
+
+        $status = Password::broker()->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->password = $password;
+                $user->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json(['message' => '密碼已重設，請重新登入']);
+        }
+
+        return response()->json([
+            'message' => match ($status) {
+                Password::INVALID_TOKEN => '重設連結已失效或無效，請重新申請',
+                Password::INVALID_USER  => '找不到此帳號',
+                default                 => '密碼重設失敗，請重新申請',
+            },
+        ], 422);
+    }
+
 
     public function me(Request $request)
     {
