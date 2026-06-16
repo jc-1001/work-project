@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/me',          [AuthController::class, 'me']);
     Route::put('/user/update', [UserController::class, 'update']);
 
+    Route::get('/orders',  [OrderController::class, 'index']);
     Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:5,1');
 
     Route::post('/api/coupons/validate', [CouponController::class, 'validateCoupon']);
@@ -70,7 +71,10 @@ Route::get('/403',       [PageController::class, 'forbidden']);
 | 前台 Blade 頁面（需要登入，未登入自動轉 /login）
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {});
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [PageController::class, 'profile'])->name('front.profile');
+    Route::get('/profile/orders', [PageController::class, 'orderIndex'])->name('front.profile.order');
+});
 
 /*
 |--------------------------------------------------------------------------

@@ -24,6 +24,16 @@ class PageController extends Controller
         return view('frontend.shop-order');
     }
 
+    public function profile()
+    {
+        return view('frontend.profile-index');
+    }
+
+    public function orderIndex()
+    {
+        return view('frontend.profile-order');
+    }
+
     public function adminLogin()
     {
         return view('auth.admin-login');

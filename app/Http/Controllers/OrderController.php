@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
@@ -18,13 +17,11 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::where('user_id', auth()->id())
-            ->with('items.product')
-            ->orderBy('created_at', 'desc')
-            ->get();
+                       ->with('items.product')
+                       ->orderBy('created_at', 'desc')
+                       ->paginate(2);
 
-        return response()->json([
-            'orders' => $orders,
-        ]);
+        return response()->json($orders);
     }
 
     public function adminIndex()

@@ -31,6 +31,8 @@ import CustomerServiceList       from "./views/admin/Reply/CustomerServiceList.v
 import ReplyCustomer             from "./views/admin/Reply/ReplyCustomer.vue";
 import AdminComplaintsIndex      from "./views/admin/ComplaintIndex.vue";
 import AdminComplaintShow        from "./views/admin/ComplaintDetail.vue";
+import Profile                   from "./views/front/profile/Profile.vue";
+import ProfileOrder              from "./views/front/profile/ProfileOrder.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -60,6 +62,8 @@ const pageMap = {
     'customer-service-reply':      ReplyCustomer,
     'admin-complaints-index':      AdminComplaintsIndex,
     'admin-complaints-show':       AdminComplaintShow,
+    'profile':                     Profile,
+    'profile-order':               ProfileOrder,
 }
 
 const vuetify = createVuetify();
