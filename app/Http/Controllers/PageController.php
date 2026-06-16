@@ -16,7 +16,8 @@ class PageController extends Controller
 
     public function shopShow(int $id)
     {
-        return view('frontend.shop-show', ['id' => $id]);
+        $product = \App\Models\Product::where('id', $id)->where('is_active', 1)->firstOrFail();
+        return view('frontend.shop-show', ['id' => $id, 'product' => $product]);
     }
 
     public function cart()

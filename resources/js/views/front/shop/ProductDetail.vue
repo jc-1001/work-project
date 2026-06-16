@@ -45,6 +45,36 @@
         activeImageIndex.value = (activeImageIndex.value + 1) % allImages.value.length
     }
 
+    const shareToLine = () => {
+        window.open(
+            `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(window.location.href)}`,
+            '_blank',
+            'width=600,height=600',
+        )
+    }
+
+    const shareToFb = () => {
+        window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
+            '_blank',
+            'width=1000,height=600',
+        )
+    }
+
+    const shareToTwitter = () => {
+        window.open(
+            `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(product.value.name ?? '')}`,
+            '_blank',
+            'width=600,height=700',
+        )
+    }
+
+    const shareLink = () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            notify('已複製商品連結！')
+        })
+    }
+
     const shippingSections = [
         {
             title: "一、商品簽收與驗貨",
@@ -337,6 +367,30 @@
                             <v-chip :color="stockStatus.color" size="large" rounded="xl">
                                 {{ stockStatus.label }}
                             </v-chip>
+                        </div>
+
+                        <div class="d-flex align-center ga-2">
+                            <v-btn variant="tonal" size="small" color="green" @click="shareToLine">
+                                <template #prepend>
+                                    <img :src="'/icons/line.png'" width="18" height="18" />
+                                </template>
+                                分享
+                            </v-btn>
+                            <v-btn variant="tonal" size="small" color="info" @click="shareToFb">
+                                <template #prepend>
+                                    <img :src="'/icons/facebook.png'" width="18" height="18" />
+                                </template>
+                                分享
+                            </v-btn>
+                            <v-btn variant="tonal" size="small" color="#5f9ea0" @click="shareToTwitter">
+                                <template #prepend>
+                                    <img :src="'/icons/twitter.png'" width="18" height="18" />
+                                </template>
+                                分享
+                            </v-btn>
+                            <v-btn prepend-icon="mdi-link" variant="tonal" size="small" color="gray" @click="shareLink">
+                                連結
+                            </v-btn>
                         </div>
 
                         <div class="rounded-e-lg" style="border-left: 4px solid rgb(var(--v-theme-primary)); background: #f5f9ff; padding: 14px 18px">
