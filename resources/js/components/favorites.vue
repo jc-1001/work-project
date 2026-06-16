@@ -157,20 +157,17 @@ const goToProductDetail = (id) => {
             </p>
         </div>
 
-        <div class="d-flex align-center justify-space-between">
-            <div>
+        <div class="d-flex flex-column flex-sm-row align-sm-center justify-space-between px-3 py-3 ga-2">
+            <div class="d-flex ga-2 flex-wrap">
                 <v-btn
                     variant="elevated"
-                    class="ml-4"
                     prepend-icon="mdi-arrow-left"
                     @click="window.location.href = '/shop'"
                 >
                     返回商城
                 </v-btn>
-
                 <v-btn
                     variant="tonal"
-                    class="ml-4 elevation-1"
                     color="warning"
                     :loading="addingAll"
                     prepend-icon="mdi-cart-heart"
@@ -183,7 +180,7 @@ const goToProductDetail = (id) => {
                 v-model="selectedCategoryId"
                 color="primary"
                 mandatory
-                class="py-6 px-4"
+                class="px-0"
             >
                 <v-chip value="all">全部</v-chip>
                 <v-chip
