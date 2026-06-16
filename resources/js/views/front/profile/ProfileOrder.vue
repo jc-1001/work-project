@@ -13,6 +13,14 @@
     const snackbar = ref({ show: false, text: '', color: 'success' })
     const SHIPPING_FEE = Number(import.meta.env.VITE_SHIPPING_FEE ?? 60)
 
+    const STATUS_CONFIG = {
+        pending: { label: '訂單已成立', color: 'warning' },
+        shipping: { label: '出貨中', color: 'info' },
+        completed: { label: '已完成', color: 'success' },
+        cancelled: { label: '訂單已取消', color: 'error' },
+        returned: { label: '已退貨', color: 'indigo' },
+    }
+
     const notify = (text, color = 'success') => {
         snackbar.value = { show: true, text, color }
     }
@@ -106,15 +114,28 @@
                 <template v-else>
                     <v-card v-for="order in orders" :key="order.id" class="mb-5" rounded="xl" elevation="1" style="border: 1px solid #eef0f4">
                         <div
-                            class="bg-grey-lighten-5 d-flex justify-space-between align-center flex-wrap ga-3 px-5 pt-3 pb-5 border-top-sm"
+                            class="bg-grey-lighten-5 d-flex flex-column flex-sm-row justify-space-between align-sm-start ga-3 px-4 px-sm-5 pt-3 pb-5 border-top-sm"
                             style="border-top-color: #eef0f4"
                         >
                             <div class="d-flex flex-column ga-1">
                                 <span class="text-body-2 font-weight-bold">{{ order.order_number }}</span>
                                 <span class="text-caption text-disabled">{{ formatDate(order.created_at) }}</span>
                             </div>
-                            <div class="d-flex align-center ga-2">
-                                <v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="buyOneTime(order)">再買一次</v-btn>
+                            <div class="d-flex flex-column align-start align-sm-end ga-2">
+                                <div class="d-flex align-center ga-2">
+                                    <v-chip :color="STATUS_CONFIG[order.status]?.color" variant="tonal" size="small">
+                                        {{ STATUS_CONFIG[order.status]?.label ?? order.status }}
+                                    </v-chip>
+                                    <v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="buyOneTime(order)">再買一次</v-btn>
+                                </div>
+                                <div
+                                    v-if="order.status === 'pending' || order.status === 'completed'"
+                                    class="d-flex align-center ga-1 text-disabled"
+                                    style="font-size: 0.7rem; line-height: 1.4"
+                                >
+                                    <v-icon size="12" color="grey-lighten-1" class="flex-shrink-0">mdi-alert-circle</v-icon>
+                                    <span>{{ order.status === 'pending' ? '如需取消訂單' : '如需申請退貨' }}，請透過右下角客服中心聯繫我們，我們會盡快與您聯絡!</span>
+                                </div>
                             </div>
                         </div>
 
@@ -144,13 +165,13 @@
                                     <v-col cols="12" sm="6">
                                         <v-sheet color="grey-lighten-5" rounded="lg" class="info-block pa-3 h-100">
                                             <div class="text-caption font-weight-bold text-disabled text-uppercase mb-1" style="letter-spacing: 0.5px">購買人資訊</div>
-                                            <div class="text-body-2 text-medium-emphasis my-1">
+                                            <div class="text-body-2 text-medium-emphasis my-1" style="font-size: 16px">
                                                 {{ order.name }}
                                             </div>
-                                            <div class="text-body-2 text-medium-emphasis my-1">
+                                            <div class="text-body-2 text-medium-emphasis my-1" style="font-size: 16px">
                                                 {{ order.phone }}
                                             </div>
-                                            <div class="text-body-2 text-medium-emphasis my-1">
+                                            <div class="text-body-2 text-medium-emphasis my-1" style="font-size: 16px">
                                                 {{ order.address }}
                                             </div>
                                         </v-sheet>
@@ -158,16 +179,24 @@
                                     <v-col cols="12" sm="6">
                                         <v-sheet color="grey-lighten-5" rounded="lg" class="info-block pa-3 h-100">
                                             <p class="text-caption font-weight-bold text-disabled text-uppercase mb-1" style="letter-spacing: 0.5px">付款資訊</p>
-                                            <p class="text-body-2 text-medium-emphasis my-1">
+                                            <p class="text-body-2 text-medium-emphasis my-1" style="font-size: 16px">
                                                 {{ paymentMethodLabel[order.payment_method] ?? order.payment_method }}
                                             </p>
-                                            <p class="text-body-2 text-medium-emphasis my-1">
+                                            <p class="text-body-2 text-medium-emphasis my-1" style="font-size: 16px">
                                                 {{ invoiceTypeLabel[order.invoice_type] ?? '—' }}
                                             </p>
-                                            <p v-if="order.invoice_type === '公司行號' && order.tax_id" class="text-body-2 text-medium-emphasis my-1">
+                                            <p
+                                                v-if="order.invoice_type === '公司行號' && order.tax_id"
+                                                class="text-body-2 text-medium-emphasis my-1"
+                                                style="font-size: 16px"
+                                            >
                                                 統編：{{ order.tax_id }}
                                             </p>
-                                            <p v-if="order.invoice_type === '手機載具' && order.carrier" class="text-body-2 text-medium-emphasis my-1">
+                                            <p
+                                                v-if="order.invoice_type === '手機載具' && order.carrier"
+                                                class="text-body-2 text-medium-emphasis my-1"
+                                                style="font-size: 16px"
+                                            >
                                                 載具：{{ order.carrier }}
                                             </p>
                                         </v-sheet>
