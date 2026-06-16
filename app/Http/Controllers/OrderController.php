@@ -197,7 +197,7 @@ class OrderController extends Controller
             'coupon_code'      => 'nullable|string',
             'items'            => 'required|array|min:1',
             'items.*.id'       => 'required|integer|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1|max:10',
+            'items.*.quantity' => 'required|integer|min:1|max:99',
         ]);
 
         try {
@@ -298,6 +298,10 @@ class OrderController extends Controller
                 }
 
                 if ($validated['paymentMethod'] === 'ECPay') {
+                    if (!config('services.ecpay.payment_url') || !config('services.ecpay.merchant_id')) {
+                        throw new \RuntimeException('綠界金流尚未設定，請聯繫管理員');
+                    }
+
                     $ecpay = new EcpayService();
 
                     $params = [
@@ -320,7 +324,7 @@ class OrderController extends Controller
                 return $order;
             });
         } catch (\Exception $e) {
-            $userFacingMessages = ['不存在或已下架', '庫存不足'];
+            $userFacingMessages = ['不存在或已下架', '庫存不足', '綠界金流尚未設定'];
             $isUserFacing = collect($userFacingMessages)->contains(fn($k) => str_contains($e->getMessage(), $k));
 
             return response()->json([

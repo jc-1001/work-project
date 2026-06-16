@@ -4,10 +4,10 @@ namespace App\Services;
 
 class EcpayService
 {
-    private string $merchantId;
-    private string $hashKey;
-    private string $hashIv;
-    private string $paymentUrl;
+    private ?string $merchantId;
+    private ?string $hashKey;
+    private ?string $hashIv;
+    private ?string $paymentUrl;
 
     public function __construct()
     {
