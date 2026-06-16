@@ -33,6 +33,7 @@ import AdminComplaintsIndex      from "./views/admin/ComplaintIndex.vue";
 import AdminComplaintShow        from "./views/admin/ComplaintDetail.vue";
 import Profile                   from "./views/front/profile/Profile.vue";
 import ProfileOrder              from "./views/front/profile/ProfileOrder.vue";
+import ShopCart                  from "./views/front/shop/ShopCart.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -64,6 +65,7 @@ const pageMap = {
     'admin-complaints-show':       AdminComplaintShow,
     'profile':                     Profile,
     'profile-order':               ProfileOrder,
+    'shop-cart':                   ShopCart,
 }
 
 const vuetify = createVuetify();

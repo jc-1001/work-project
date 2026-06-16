@@ -19,6 +19,8 @@ const dateRef = ref(null);
 const cvcRef = ref(null);
 const taxIdRef = ref(null);
 const carrierRef = ref(null);
+const userInfo = ref(false);
+const { fetchUser } = useAuth();
 
 const focusNext = async (target) => {
     await nextTick();
@@ -151,6 +153,12 @@ const handleTabChange = () => {
     checkoutFormRef.value?.resetValidation();
 };
 
+const clearSensitiveFields = () => {
+    form.value.cardNumber = "";
+    form.value.cvc = "";
+    form.value.date = "";
+};
+
 const submitOrder = async () => {
     if (!checkoutFormRef.value) return;
 
@@ -201,17 +209,33 @@ const submitOrder = async () => {
         });
 };
 
-const clearSensitiveFields = () => {
-    form.value.cardNumber = "";
-    form.value.cvc = "";
-    form.value.date = "";
-};
-
 const goTo = (url) => {
     window.location.href = url;
 };
 
-const { fetchUser } = useAuth();
+const fillFromLastOrder = (checked) => {
+    if (!checked) {
+        form.value.name = "";
+        form.value.phone = "";
+        form.value.address = "";
+        return;
+    }
+    api.get("/orders/latest")
+        .then((res) => {
+            if (!res.data.order) {
+                notify("查無上次購買記錄", "warning");
+                userInfo.value = false;
+                return;
+            }
+            form.value.name = res.data.order.name;
+            form.value.phone = res.data.order.phone;
+            form.value.address = res.data.order.address;
+        })
+        .catch(() => {
+            notify("無法載入上次購買資料", "error");
+            userInfo.value = false;
+        });
+};
 
 onMounted(() => {
     fetchUser();
@@ -292,6 +316,13 @@ onUnmounted(() => {
                             >
                                 <v-icon icon="mdi-account" size="20" />
                                 購買人訊息
+                                <v-checkbox
+                                    v-model="userInfo"
+                                    color="info"
+                                    label="與上次購買資料同"
+                                    hide-details
+                                    @update:model-value="fillFromLastOrder"
+                                ></v-checkbox>
                             </div>
                             <v-card-text>
                                 <v-text-field

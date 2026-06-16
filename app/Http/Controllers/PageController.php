@@ -19,6 +19,11 @@ class PageController extends Controller
         return view('frontend.shop-show', ['id' => $id]);
     }
 
+    public function cart()
+    {
+        return view('frontend.shop-cart');
+    }
+
     public function order()
     {
         return view('frontend.shop-order');

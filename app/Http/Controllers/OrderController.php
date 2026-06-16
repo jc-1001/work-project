@@ -14,6 +14,15 @@ use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
+    public function latest()
+    {
+        $order = Order::where('user_id', auth()->id())
+                      ->orderBy('created_at', 'desc')
+                      ->first(['name', 'phone', 'address']);
+
+        return response()->json(['order' => $order]);
+    }
+
     public function index()
     {
         $orders = Order::where('user_id', auth()->id())
