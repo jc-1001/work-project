@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\EcpayController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ComplaintController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,9 +69,10 @@ Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id
 Route::get('/products/{id}/reviews', [ReviewController::class, 'index'])->where('id', '[0-9]+');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[0-9]+');
-    Route::post('/reviews/{id}/vote',     [ReviewController::class, 'vote'])->where('id', '[0-9]+');
-    Route::patch('/reviews/{id}',         [ReviewController::class, 'update'])->where('id', '[0-9]+');
+    Route::post('/products/{id}/reviews',  [ReviewController::class,   'store'])->where('id', '[0-9]+');
+    Route::post('/reviews/{id}/vote',      [ReviewController::class,   'vote'])->where('id', '[0-9]+');
+    Route::patch('/reviews/{id}',          [ReviewController::class,   'update'])->where('id', '[0-9]+');
+    Route::post('/reviews/{id}/complaint', [ComplaintController::class, 'store'])->where('id', '[0-9]+');
 });
 
 Route::get('/advertisement/active', [AdvertisementController::class, 'active']);
