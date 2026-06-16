@@ -1,9 +1,13 @@
 <script setup>
-    import { computed, ref } from 'vue'
+    import { computed, ref, onMounted } from 'vue'
     import api from '../bootstrap'
     import { useAuth } from '../composables/useAuth'
 
-    const { user, clearUser } = useAuth()
+    const { user, fetchUser, clearUser } = useAuth()
+
+    onMounted(() => {
+        fetchUser()
+    })
     const isLoggedIn = computed(() => !!user.value)
     const currentPath = window.location.pathname
     const drawer = ref(false)
