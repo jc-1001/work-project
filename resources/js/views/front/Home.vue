@@ -22,9 +22,58 @@ const hotProducts = ref([]);
 const activeName = ref(undefined);
 const snackbar = ref({ show: false, text: "", color: "success" });
 const adData = ref(null);
+const weather = ref(null);
+const weatherLoading = ref(true);
+const weatherError = ref(false);
 
 const notify = (text, color = "success") => {
     snackbar.value = { show: true, text, color };
+};
+
+const WMO_CODES = {
+    0: { label: "晴天", icon: "mdi-weather-sunny" },
+    1: { label: "大致晴朗", icon: "mdi-weather-partly-cloudy" },
+    2: { label: "部分多雲", icon: "mdi-weather-partly-cloudy" },
+    3: { label: "陰天", icon: "mdi-weather-cloudy" },
+    45: { label: "霧", icon: "mdi-weather-fog" },
+    48: { label: "結霜霧", icon: "mdi-weather-fog" },
+    51: { label: "毛毛雨", icon: "mdi-weather-rainy" },
+    53: { label: "毛毛雨", icon: "mdi-weather-rainy" },
+    55: { label: "濃毛毛雨", icon: "mdi-weather-rainy" },
+    61: { label: "小雨", icon: "mdi-weather-rainy" },
+    63: { label: "中雨", icon: "mdi-weather-rainy" },
+    65: { label: "大雨", icon: "mdi-weather-pouring" },
+    71: { label: "小雪", icon: "mdi-weather-snowy" },
+    73: { label: "中雪", icon: "mdi-weather-snowy" },
+    75: { label: "大雪", icon: "mdi-weather-snowy-heavy" },
+    80: { label: "陣雨", icon: "mdi-weather-partly-rainy" },
+    81: { label: "陣雨", icon: "mdi-weather-partly-rainy" },
+    82: { label: "強陣雨", icon: "mdi-weather-pouring" },
+    95: { label: "雷陣雨", icon: "mdi-weather-lightning-rainy" },
+    96: { label: "雷雨夾冰雹", icon: "mdi-weather-hail" },
+    99: { label: "強雷雨夾冰雹", icon: "mdi-weather-hail" },
+};
+
+function getWeatherInfo(code) {
+    return WMO_CODES[code] ?? { label: "未知", icon: "mdi-weather-cloudy" };
+}
+
+const fetchWeather = () => {
+    weatherLoading.value = true;
+    weatherError.value = false;
+    fetch(
+        "https://api.open-meteo.com/v1/forecast?latitude=25.05&longitude=121.53&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&timezone=Asia/Taipei",
+    )
+        .then((res) => res.json())
+        .then((data) => {
+            weather.value = data.current;
+        })
+        .catch(() => {
+            weatherError.value = true;
+        })
+        .finally(() => {
+            weatherLoading.value = false;
+        });
 };
 
 const banners = [
@@ -155,6 +204,7 @@ watch(
 onMounted(async () => {
     fetchUser();
     fetchHotProducts();
+    fetchWeather();
 
     api.get("/advertisement/active")
         .then((res) => {
@@ -268,6 +318,29 @@ const handleLogout = async () => {
                                     登出
                                 </v-btn>
                             </template>
+                        </div>
+
+                        <div
+                            v-if="weather && !weatherLoading"
+                            class="d-inline-flex align-center ga-2 mt-6 px-5 py-2"
+                            style="
+                                border-radius: 50px;
+                                background: rgba(255, 255, 255, 0.15);
+                                backdrop-filter: blur(8px);
+                                border: 1px solid rgba(255, 255, 255, 0.25);
+                                font-size: 0.88rem;
+                                color: rgba(255, 255, 255, 0.9);
+                            "
+                        >
+                            <v-icon
+                                :icon="getWeatherInfo(weather.weathercode).icon"
+                                size="24"
+                            />
+                            <span>台北 {{ Math.round(weather.temperature_2m) }}°C</span>
+                            <span style="opacity: 0.45">|</span>
+                            <span>{{ getWeatherInfo(weather.weathercode).label }}</span>
+                            <span style="opacity: 0.45">|</span>
+                            <span>濕度 {{ weather.relativehumidity_2m }}%</span>
                         </div>
                     </div>
                 </div>
