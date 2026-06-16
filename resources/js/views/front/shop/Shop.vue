@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 
 const window = globalThis;
 import api from "../../../bootstrap";
@@ -24,9 +24,19 @@ const currentPage = ref(1);
 const pageSize = ref(12);
 const { fetchUser, isLoggedIn } = useAuth();
 
+const search = ref("");
 const snackbar = ref({ show: false, text: "", color: "success" });
 const loginDialog = ref(false);
 const loadingProductId = ref(null);
+
+let searchTimer = null;
+watch(search, () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+        currentPage.value = 1;
+        fetchProducts();
+    }, 400);
+});
 
 const notify = (text, color = "success") => {
     snackbar.value = { show: true, text, color };
@@ -44,7 +54,7 @@ const fetchCategories = () => {
 
 const fetchProducts = () => {
     loading.value = true;
-    const params = { page: currentPage.value, per_page: pageSize.value };
+    const params = { page: currentPage.value, per_page: pageSize.value, search: search.value || undefined };
     if (typeof selectedCategoryId.value === "number")
         params.category_id = selectedCategoryId.value;
 
@@ -62,17 +72,16 @@ const fetchProducts = () => {
 };
 
 const onCategoryChange = () => {
+    clearTimeout(searchTimer);
     currentPage.value = 1;
     fetchProducts();
 };
 
-// 換頁回頂部
 const onPageChange = () => {
     fetchProducts();
     window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-// 快速加入購物車
 const addToCart = async (product) => {
     loadingProductId.value = product.id;
     try {
@@ -141,7 +150,21 @@ const goToProductDetail = (id) => {
             </p>
         </div>
 
-        <div class="d-flex flex-wrap justify-center ga-2 py-6 px-4">
+        <v-row class="px-4 pt-4 pb-2" align="center">
+            <v-col cols="12" sm="4" md="3">
+                <v-text-field
+                    v-model="search"
+                    density="compact"
+                    label="搜尋商品名稱"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    variant="outlined"
+                    hide-details
+                />
+            </v-col>
+        </v-row>
+
+        <div class="d-flex flex-wrap justify-center ga-2 py-4 px-4">
             <v-chip
                 size="large"
                 prepend-icon="mdi-history"
@@ -214,12 +237,15 @@ const goToProductDetail = (id) => {
                 class="d-flex flex-column align-center py-15"
             >
                 <v-icon
-                    icon="mdi-package-variant-remove"
+                    :icon="search ? 'mdi-magnify-close' : 'mdi-package-variant-remove'"
                     size="64"
                     color="grey-lighten-1"
                     class="mb-3"
                 />
-                <p class="text-medium-emphasis">此分類目前無商品</p>
+                <p class="text-medium-emphasis">
+                    <template v-if="search">找不到符合「{{ search }}」的商品</template>
+                    <template v-else>此分類目前無商品</template>
+                </p>
             </div>
 
             <v-row v-else class="px-4 py-2">
