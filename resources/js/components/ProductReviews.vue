@@ -148,17 +148,16 @@
             <div class="ma-5 text-body-2 text-medium-emphasis" :style="{ lineHeight: '1.7' }">
                 {{ review.content }}
 
-                <div v-if="review.images?.length" class="d-flex ga-4 mt-2" style="width: fit-content">
-                    <v-img
+                <div v-if="review.images?.length" class="d-flex flex-wrap ga-2 mt-2">
+                    <div
                         v-for="img in review.images"
                         :key="img.id"
-                        :src="`/storage/${img.path}`"
-                        :width="100"
-                        :height="100"
-                        rounded="lg"
-                        class="cursor-pointer"
+                        class="cursor-pointer rounded-lg overflow-hidden flex-shrink-0"
+                        style="width:clamp(60px,20vw,100px);aspect-ratio:1;"
                         @click="previewSrc = `/storage/${img.path}`"
-                    />
+                    >
+                        <img :src="`/storage/${img.path}`" style="width:100%;height:100%;object-fit:cover;display:block;" />
+                    </div>
                 </div>
             </div>
         </v-card>
@@ -168,7 +167,13 @@
         <v-pagination v-model="currentPage" :length="lastPage" density="compact" @update:model-value="fetchReviews" />
     </div>
 
-    <v-dialog v-model="previewOpen" max-width="50vw">
-        <v-img :src="previewSrc" max-height="50vh" contain @click="previewSrc = null" />
-    </v-dialog>
+    <Teleport to="body">
+        <div
+            v-if="previewOpen"
+            style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;"
+            @click="previewSrc = null"
+        >
+            <img :src="previewSrc" style="max-width:90vw;max-height:90vh;object-fit:contain;display:block;" />
+        </div>
+    </Teleport>
 </template>
