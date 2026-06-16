@@ -191,10 +191,20 @@ const submitOrder = async () => {
     };
 
     api.post("/orders", payload)
-        .then(() => {
+        .then((res) => {
             clearSensitiveFields();
-            notify("訂單已提交成功！");
             localStorage.removeItem("cart");
+
+            if (res.data.message === "ECPay" && res.data.form_html) {
+                const div = document.createElement("div");
+                div.innerHTML = res.data.form_html;
+                const ecpayForm = div.querySelector("#ecpay_form");
+                document.body.appendChild(ecpayForm);
+                ecpayForm.submit();
+                return;
+            }
+
+            notify("訂單已提交成功！");
             window.location.href = "/shop";
         })
         .catch((error) => {
@@ -378,6 +388,7 @@ onUnmounted(() => {
                                 >
                                     <v-tab value="Credit card">信用卡</v-tab>
                                     <v-tab value="ATM">ATM轉帳</v-tab>
+                                    <v-tab value="ECPay">第三方支付</v-tab>
                                 </v-tabs>
 
                                 <v-tabs-window v-model="form.paymentMethod">
@@ -435,6 +446,16 @@ onUnmounted(() => {
                                                 <b>銀行帳號：</b
                                                 >1234-5678-901234
                                             </p>
+                                        </div>
+                                    </v-tabs-window-item>
+
+                                    <v-tabs-window-item value="ECPay">
+                                        <div class="pa-2">
+                                            <p class="mb-2 d-flex align-center" style="font-size: large">
+                                                <v-icon icon="mdi-credit-card-check" size="18" class="mr-1" />
+                                                點擊「確認下單」後將自動跳轉至綠界安全付款頁面
+                                            </p>
+                                            <p class="text-grey">支援信用卡、超商代碼、ATM 轉帳等多種付款方式</p>
                                         </div>
                                     </v-tabs-window-item>
                                 </v-tabs-window>

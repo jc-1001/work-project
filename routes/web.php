@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\EcpayController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/coupons/validate', [CouponController::class, 'validateCoupon']);
 });
 
+
+Route::post('/ecpay/notify', [EcpayController::class, 'notify'])->name('ecpay.notify');
+Route::get('/ecpay/return',  [EcpayController::class, 'return'])->name('ecpay.return');
 /*
 |--------------------------------------------------------------------------
 | 前台公開 API（無需登入）

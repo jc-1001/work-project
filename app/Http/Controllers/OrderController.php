@@ -11,14 +11,15 @@ use App\Mail\OrderStatusChanged;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
+use App\Services\EcpayService;
 
 class OrderController extends Controller
 {
     public function latest()
     {
         $order = Order::where('user_id', auth()->id())
-                      ->orderBy('created_at', 'desc')
-                      ->first(['name', 'phone', 'address']);
+            ->orderBy('created_at', 'desc')
+            ->first(['name', 'phone', 'address']);
 
         return response()->json(['order' => $order]);
     }
@@ -189,7 +190,7 @@ class OrderController extends Controller
             'customer.name'    => 'required|string',
             'customer.phone'   => 'required|string',
             'customer.address' => 'required|string',
-            'paymentMethod'    => 'required|string|in:Credit card,ATM,cvs,cod',
+            'paymentMethod'    => 'required|string|in:Credit card,ATM,cvs,cod,ECPay',
             'bill'             => 'nullable|string',
             'taxId'            => 'nullable|string',
             'carrier'          => 'nullable|string',
@@ -296,6 +297,26 @@ class OrderController extends Controller
                     ]);
                 }
 
+                if ($validated['paymentMethod'] === 'ECPay') {
+                    $ecpay = new EcpayService();
+
+                    $params = [
+                        'MerchantID'        => config('services.ecpay.merchant_id'),
+                        'MerchantTradeNo'   => $order->order_number,
+                        'MerchantTradeDate' => now()->format('Y/m/d H:i:s'),
+                        'PaymentType'       => 'aio',
+                        'TotalAmount'       => (int)($order->total_amount + config('services.shipping.fee', 60)),
+                        'TradeDesc'         => '購物訂單',
+                        'ItemName'          => $order->items->map(fn($i) => $i->product_name . ' x' . $i->quantity)->implode('#'),
+                        'ReturnURL'         => config('services.ecpay.notify_url'),
+                        'OrderResultURL'    => config('services.ecpay.return_url'),
+                        'ChoosePayment'     => 'Credit',
+                        'EncryptType'       => 1,
+                    ];
+
+                    $order->ecpay_form_html = $ecpay->buildForm($params);
+                }
+
                 return $order;
             });
         } catch (\Exception $e) {
@@ -312,6 +333,14 @@ class OrderController extends Controller
             Mail::to(auth()->user()->email)->queue(new OrderStatusChanged($order));
         } catch (\Exception $e) {
             report($e);
+        }
+
+        if (!empty($order->ecpay_form_html)) {
+            return response()->json([
+                'message'   => 'ECPay',
+                'form_html' => $order->ecpay_form_html,
+                'order_id'  => $order->id,
+            ], 201);
         }
 
         return response()->json([
