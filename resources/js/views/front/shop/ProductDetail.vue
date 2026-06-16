@@ -15,12 +15,13 @@
     const snackbar = ref({ show: false, text: '', color: 'success' })
     const loading = ref(true)
     const cartLoading = ref(false)
+    const relatedProducts = ref([])
+    const relatedLoading = ref(false)
 
     const tab = ref('one')
 
     const imageDialog = ref(false)
     const activeImageIndex = ref(0)
-    const imgHovered = ref(false)
     const thumbHoveredIndex = ref(null)
 
     const allImages = computed(() => {
@@ -42,110 +43,133 @@
 
     const shippingSections = [
         {
-            title: '一、商品簽收與驗貨',
+            title: "一、商品簽收與驗貨",
             items: [
-                '收到商品時，請當場確認包裝完整、商品無損壞。',
-                '若發現外箱有明顯擠壓或破損，請先拍照存證，並於 24 小時內聯繫客服。',
-                '生鮮食品、冷凍商品請於簽收後立即檢查保存狀況。',
+                "收到商品時，請當場確認包裝完整、商品無損壞。",
+                "若發現外箱有明顯擠壓或破損，請先拍照存證，並於 24 小時內聯繫客服。",
+                "生鮮食品、冷凍商品請於簽收後立即檢查保存狀況。",
             ],
         },
         {
-            title: '二、食品飲品類',
+            title: "二、食品飲品類",
             items: [
-                '請依包裝標示之保存方式與有效日期內食用。',
-                '拆封後請儘速食用完畢，並避免陽光直射或高溫環境。',
-                '個人過敏體質者，請於購買前詳閱成分標示。',
-                '食品因個人衛生安全考量，除商品本身瑕疵外，恕無法辦理退換貨。',
+                "請依包裝標示之保存方式與有效日期內食用。",
+                "拆封後請儘速食用完畢，並避免陽光直射或高溫環境。",
+                "個人過敏體質者，請於購買前詳閱成分標示。",
+                "食品因個人衛生安全考量，除商品本身瑕疵外，恕無法辦理退換貨。",
             ],
         },
         {
-            title: '三、服飾類',
+            title: "三、服飾類",
             items: [
-                '請參考商品頁面的尺寸表進行選擇，實際穿著可能因個人體型略有差異。',
-                '商品顏色可能因螢幕顯示與拍攝光線而有色差，以實品為準。',
-                '請依商品洗滌標籤指示清洗保養，避免造成損壞或褪色。',
-                '試穿時請保持商品標籤完整，已拆封或留有使用痕跡者無法退換。',
+                "請參考商品頁面的尺寸表進行選擇，實際穿著可能因個人體型略有差異。",
+                "商品顏色可能因螢幕顯示與拍攝光線而有色差，以實品為準。",
+                "請依商品洗滌標籤指示清洗保養，避免造成損壞或褪色。",
+                "試穿時請保持商品標籤完整，已拆封或留有使用痕跡者無法退換。",
             ],
         },
         {
-            title: '四、數位商品類',
+            title: "四、數位商品類",
             items: [
-                '數位商品（如序號、兌換碼、電子票券等）一經售出或已查看序號，恕無法退款。',
-                '請妥善保管您的序號／兌換碼，因外洩或遭盜用之損失由買家自行承擔。',
-                '部分數位商品有使用期限，請於期限內完成兌換或使用。',
+                "數位商品（如序號、兌換碼、電子票券等）一經售出或已查看序號，恕無法退款。",
+                "請妥善保管您的序號／兌換碼，因外洩或遭盜用之損失由買家自行承擔。",
+                "部分數位商品有使用期限，請於期限內完成兌換或使用。",
             ],
         },
         {
-            title: '五、退換貨須知',
+            title: "五、退換貨須知",
             items: [
-                '依《消費者保護法》規定，網購商品享有 7 天鑑賞期（特定商品除外）。',
-                '退換貨商品須保持全新狀態，含原包裝、配件、贈品、保證書等均需完整退回。',
-                '以下情形不適用鑑賞期退貨：食品、個人衛生用品、數位商品、已拆封耳機／耳塞、內衣褲等。',
-                '退款將於商品檢查無誤後 5–10 個工作天內原路退回。',
+                "依《消費者保護法》規定，網購商品享有 7 天鑑賞期（特定商品除外）。",
+                "退換貨商品須保持全新狀態，含原包裝、配件、贈品、保證書等均需完整退回。",
+                "以下情形不適用鑑賞期退貨：食品、個人衛生用品、數位商品、已拆封耳機／耳塞、內衣褲等。",
+                "退款將於商品檢查無誤後 5–10 個工作天內原路退回。",
             ],
         },
         {
-            title: '六、其他注意事項',
+            title: "六、其他注意事項",
             items: [
-                '商品圖片僅供參考，實際商品以收到實品為準。',
-                '促銷活動商品可能有額外限制條件，請以活動頁面說明為準。',
-                '本平台保留隨時修改本須知之權利，更新後將公告於網站，不另行通知。',
+                "商品圖片僅供參考，實際商品以收到實品為準。",
+                "促銷活動商品可能有額外限制條件，請以活動頁面說明為準。",
+                "本平台保留隨時修改本須知之權利，更新後將公告於網站，不另行通知。",
             ],
         },
     ]
 
     const disclaimerSections = [
         {
-            title: '一、商品資訊',
+            title: "一、商品資訊",
             items: [
-                '本平台商品資訊（含圖片、文字說明、規格、價格等）均盡力提供正確資訊，但不保證完全無誤。',
-                '商品圖片可能因拍攝光線、螢幕顯示等因素而與實品略有差異，以實際收到之商品為準。',
-                '本平台保留隨時調整商品價格、規格及上下架之權利，恕不另行通知。',
+                "本平台商品資訊（含圖片、文字說明、規格、價格等）均盡力提供正確資訊，但不保證完全無誤。",
+                "商品圖片可能因拍攝光線、螢幕顯示等因素而與實品略有差異，以實際收到之商品為準。",
+                "本平台保留隨時調整商品價格、規格及上下架之權利，恕不另行通知。",
             ],
         },
         {
-            title: '二、服務中斷與系統維護',
+            title: "二、服務中斷與系統維護",
             items: [
-                '本平台可能因系統維護、升級、不可抗力事件（如天災、網路攻擊、停電等）而暫時中斷服務。',
-                '本平台將盡力提前通知，但對因服務中斷所造成之損失不承擔賠償責任。',
+                "本平台可能因系統維護、升級、不可抗力事件（如天災、網路攻擊、停電等）而暫時中斷服務。",
+                "本平台將盡力提前通知，但對因服務中斷所造成之損失不承擔賠償責任。",
             ],
         },
         {
-            title: '三、第三方連結與服務',
+            title: "三、第三方連結與服務",
             items: [
-                '本平台可能包含第三方網站連結，僅供使用者參考，本平台不對其內容或服務品質負責。',
-                '使用第三方支付服務時，請遵守該服務之相關條款，本平台不介入且不承擔任何糾紛。',
+                "本平台可能包含第三方網站連結，僅供使用者參考，本平台不對其內容或服務品質負責。",
+                "使用第三方支付服務時，請遵守該服務之相關條款，本平台不介入且不承擔任何糾紛。",
             ],
         },
         {
-            title: '四、智慧財產權',
-            items: ['本平台上所有內容（含但不限於文字、圖片、商標、網頁設計）均受智慧財產權法保護。', '未經本平台書面同意，不得擅自複製、轉載、修改或用於商業用途。'],
-        },
-        {
-            title: '五、個人資料與隱私',
+            title: "四、智慧財產權",
             items: [
-                '本平台將依據《個人資料保護法》及相關法令保護您的個人資料。',
-                '您提供之個人資料僅用於訂單處理、客服聯繫及服務優化，不會任意提供給第三方。',
-                '您有權隨時要求查詢、更正或刪除您的個人資料。',
+                "本平台上所有內容（含但不限於文字、圖片、商標、網頁設計）均受智慧財產權法保護。",
+                "未經本平台書面同意，不得擅自複製、轉載、修改或用於商業用途。",
             ],
         },
         {
-            title: '六、責任限制',
+            title: "五、個人資料與隱私",
             items: [
-                '本平台對於因使用或無法使用本平台服務所產生之間接、附帶、特殊或懲罰性損害，不承擔賠償責任。',
-                '本平台對商品之擔保僅限於商品本身缺陷，不包含因使用者個人使用不當所造成的損害。',
-                '會員帳號之安全由用戶自行負責，因帳號外洩所產生之損失，本平台不承擔賠償責任。',
+                "本平台將依據《個人資料保護法》及相關法令保護您的個人資料。",
+                "您提供之個人資料僅用於訂單處理、客服聯繫及服務優化，不會任意提供給第三方。",
+                "您有權隨時要求查詢、更正或刪除您的個人資料。",
             ],
         },
         {
-            title: '七、條款修改',
-            items: ['本平台保留隨時修改本免責聲明之權利，修改後將於網站公告，不另行個別通知。', '您繼續使用本平台即視為同意修改後之條款。'],
+            title: "六、責任限制",
+            items: [
+                "本平台對於因使用或無法使用本平台服務所產生之間接、附帶、特殊或懲罰性損害，不承擔賠償責任。",
+                "本平台對商品之擔保僅限於商品本身缺陷，不包含因使用者個人使用不當所造成的損害。",
+                "會員帳號之安全由用戶自行負責，因帳號外洩所產生之損失，本平台不承擔賠償責任。",
+            ],
         },
         {
-            title: '八、準據法與管轄',
-            items: ['本聲明之解釋與適用均以中華民國法律為準據法。', '因本聲明所生之糾紛，雙方同意以臺灣臺北地方法院為第一審管轄法院。'],
+            title: "七、條款修改",
+            items: [
+                "本平台保留隨時修改本免責聲明之權利，修改後將於網站公告，不另行個別通知。",
+                "您繼續使用本平台即視為同意修改後之條款。",
+            ],
+        },
+        {
+            title: "八、準據法與管轄",
+            items: [
+                "本聲明之解釋與適用均以中華民國法律為準據法。",
+                "因本聲明所生之糾紛，雙方同意以臺灣臺北地方法院為第一審管轄法院。",
+            ],
         },
     ]
+
+    const fetchRelated = (categoryId) => {
+        relatedLoading.value = true
+        api.get('/products', { params: { category_id: categoryId, per_page: 4 } })
+            .then((res) => {
+                relatedProducts.value = res.data.data.filter(
+                    (p) => p.id !== Number(productId),
+                )
+            })
+            .catch(() => {})
+            .finally(() => {
+                relatedLoading.value = false
+            })
+    }
 
     const notify = (text, color = 'success') => {
         snackbar.value = { show: true, text, color }
@@ -164,6 +188,7 @@
             .then((res) => {
                 product.value = res.data.product
                 activeImageIndex.value = 0
+                fetchRelated(res.data.product.category_id)
             })
             .catch(() => {
                 notify('無法載入商品資訊', 'error')
@@ -224,9 +249,9 @@
     <FrontLayout>
         <div class="mx-auto px-6 pt-6 pb-16" style="max-width: 1100px">
             <nav class="d-flex align-center ga-1 mb-8 text-body-2 text-medium-emphasis">
-                <span class="text-primary cursor-pointer text-decoration-underline" @click="window.location.href = '/'">首頁</span>
+                <span class="breadcrumb-link text-primary cursor-pointer" @click="window.location.href = '/'">首頁</span>
                 <span class="text-disabled">›</span>
-                <span class="text-primary cursor-pointer text-decoration-underline" @click="window.location.href = '/shop'">商城</span>
+                <span class="breadcrumb-link text-primary cursor-pointer" @click="window.location.href = '/shop'">商城</span>
                 <span class="text-disabled">›</span>
                 <span>{{ product.name ?? '載入中...' }}</span>
             </nav>
@@ -239,30 +264,18 @@
             <v-row v-else align="start" no-gutters class="ga-14">
                 <v-col cols="12" sm>
                     <div
-                        class="position-relative overflow-hidden cursor-pointer rounded-xl"
+                        class="img-wrap position-relative overflow-hidden cursor-pointer rounded-xl"
                         style="aspect-ratio: 1; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1)"
                         @click="imageDialog = true"
-                        @mouseenter="imgHovered = true"
-                        @mouseleave="imgHovered = false"
                     >
                         <v-img
                             :src="activeImageUrl"
                             cover
-                            width="100%"
-                            height="100%"
-                            :style="{ transform: imgHovered ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.3s ease' }"
+                            class="product-img w-100 h-100"
                         />
-
                         <div
-                            class="d-flex align-center justify-center"
-                            style="pointer-events: none"
-                            :style="{
-                                position: 'absolute',
-                                inset: 0,
-                                background: 'rgba(0,0,0,0.25)',
-                                opacity: imgHovered ? 1 : 0,
-                                transition: 'opacity 0.3s ease',
-                            }"
+                            class="img-zoom-hint position-absolute d-flex align-center justify-center"
+                            style="inset: 0; background: rgba(0,0,0,0.25); opacity: 0"
                         >
                             <v-icon color="white" size="32">mdi-magnify-plus-outline</v-icon>
                         </div>
@@ -325,6 +338,7 @@
                             </div>
 
                             <v-btn
+                                class="cart-btn"
                                 color="primary"
                                 size="large"
                                 style="flex: 1; min-width: 160px"
@@ -337,7 +351,7 @@
                             </v-btn>
                         </div>
 
-                        <v-btn variant="text" color="grey" class="align-self-start" @click="window.location.href = '/shop'">← 繼續逛逛</v-btn>
+                        <v-btn variant="text" color="grey" class="back-btn align-self-start" @click="window.location.href = '/shop'">← 繼續逛逛</v-btn>
                     </div>
                 </v-col>
             </v-row>
@@ -396,6 +410,41 @@
             </div>
         </div>
 
+        <div
+            v-if="relatedProducts.length > 0"
+            class="mx-auto px-6 pb-16"
+            style="max-width: 1100px"
+        >
+            <div class="d-flex align-center ga-3 mb-6">
+                <div style="width: 4px; height: 20px; background: rgb(var(--v-theme-primary)); border-radius: 2px; flex-shrink: 0"></div>
+                <v-icon icon="mdi-creation" size="30" color="yellow-darken-2" />
+                <h2 class="text-h6 font-weight-bold ma-0" style="color: #1a1a2e; white-space: nowrap">你可能也會喜歡</h2>
+                <v-divider />
+            </div>
+
+            <v-row>
+                <v-col v-for="p in relatedProducts" :key="p.id" cols="6" sm="4" md="3">
+                    <div class="related-card cursor-pointer" @click="window.location.href = `/shop/${p.id}`">
+                        <div class="related-card-img-wrap position-relative rounded-xl overflow-hidden" style="box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08)">
+                            <v-img :src="getImageUrl(p.image)" aspect-ratio="1" cover class="related-card-img" />
+                            <div class="related-card-overlay position-absolute d-flex flex-column align-center justify-center" style="inset: 0; background: rgba(0, 0, 0, 0.28); opacity: 0">
+                                <v-icon color="white" size="28">mdi-magnify-plus-outline</v-icon>
+                                <span class="text-white text-caption mt-1">查看商品</span>
+                            </div>
+                        </div>
+                        <div class="pt-3 px-1">
+                            <p class="text-body-2 font-weight-bold ma-0 mb-1" style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; color: #1a1a2e">
+                                {{ p.name }}
+                            </p>
+                            <p class="text-error font-weight-bold ma-0" style="font-size: 0.95rem">
+                                NT$ {{ Number(p.price).toLocaleString() }}
+                            </p>
+                        </div>
+                    </div>
+                </v-col>
+            </v-row>
+        </div>
+
         <v-dialog v-model="imageDialog" max-width="800">
             <v-card color="black" flat class="position-relative">
                 <v-btn icon="mdi-close" variant="text" color="white" class="ma-2" style="position: absolute; top: 0; right: 0; z-index: 1" @click="imageDialog = false" />
@@ -439,3 +488,56 @@
         </v-snackbar>
     </FrontLayout>
 </template>
+
+<style scoped>
+.breadcrumb-link:hover {
+    text-decoration: underline;
+}
+
+.product-img {
+    transition: transform 0.3s ease;
+}
+.img-wrap:hover .product-img {
+    transform: scale(1.04);
+}
+
+.img-zoom-hint {
+    transition: opacity 0.3s ease;
+}
+.img-wrap:hover .img-zoom-hint {
+    opacity: 1 !important;
+}
+
+.cart-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(var(--v-theme-primary), 0.4);
+}
+.back-btn:hover {
+    color: rgb(var(--v-theme-primary)) !important;
+}
+
+.related-card {
+    transition: transform 0.25s ease;
+}
+.related-card:hover {
+    transform: translateY(-5px);
+}
+.related-card-img-wrap {
+    transition: box-shadow 0.25s ease;
+}
+.related-card:hover .related-card-img-wrap {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+.related-card-img {
+    transition: transform 0.35s ease;
+}
+.related-card:hover .related-card-img {
+    transform: scale(1.06);
+}
+.related-card-overlay {
+    transition: opacity 0.25s ease;
+}
+.related-card:hover .related-card-overlay {
+    opacity: 1 !important;
+}
+</style>
