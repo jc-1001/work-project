@@ -61,6 +61,10 @@ Route::get('/ecpay/return',  [EcpayController::class, 'return'])->name('ecpay.re
 |--------------------------------------------------------------------------
 */
 
+Route::get('/categories',    [ProductController::class, 'categories']);
+Route::get('/products',      [ProductController::class, 'frontIndex']);
+Route::get('/products/{id}', [ProductController::class, 'frontShow'])->where('id', '[0-9]+');
+
 Route::get('/advertisement/active', [AdvertisementController::class, 'active']);
 Route::post('/newMessage',          [ContactMessageController::class, 'store']);
 /*
