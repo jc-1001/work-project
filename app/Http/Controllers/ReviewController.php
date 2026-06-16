@@ -21,13 +21,12 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(10);
 
-        $reviews->getCollection()->transform(function ($review) use ($userId) {
+        foreach ($reviews as $review) {
             $review->up_count   = $review->votes->where('type', 'up')->count();
             $review->down_count = $review->votes->where('type', 'down')->count();
             $review->my_vote    = $userId ? $review->votes->where('user_id', $userId)->value('type') : null;
             $review->makeHidden('votes');
-            return $review;
-        });
+        }
 
         $stats = Review::where('product_id', $productId)
             ->selectRaw('
