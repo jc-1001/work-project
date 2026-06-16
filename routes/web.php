@@ -70,6 +70,7 @@ Route::get('/products/{id}/reviews', [ReviewController::class, 'index'])->where(
 Route::middleware('auth')->group(function () {
     Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[0-9]+');
     Route::post('/reviews/{id}/vote',     [ReviewController::class, 'vote'])->where('id', '[0-9]+');
+    Route::patch('/reviews/{id}',         [ReviewController::class, 'update'])->where('id', '[0-9]+');
 });
 
 Route::get('/advertisement/active', [AdvertisementController::class, 'active']);

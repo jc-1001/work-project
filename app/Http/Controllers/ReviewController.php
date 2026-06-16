@@ -6,6 +6,7 @@ use App\Models\Review;
 use App\Models\ReviewImage;
 use App\Models\ReviewVote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ReviewController extends Controller
 {
@@ -80,9 +81,9 @@ class ReviewController extends Controller
     public function store(Request $request, $productId)
     {
         $request->validate([
-            'rating'  => 'required|integer|min:1|max:5',
-            'content' => 'nullable|string|max:1000',
-            'images'  => 'nullable|array|max:5',
+            'rating'   => 'required|integer|min:1|max:5',
+            'content'  => 'nullable|string|max:1000',
+            'images'   => 'nullable|array|max:5',
             'images.*' => 'image|max:2048',
         ]);
 
@@ -101,14 +102,49 @@ class ReviewController extends Controller
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('reviews', 'public');
                 ReviewImage::create([
                     'review_id' => $review->id,
-                    'path'      => $path,
+                    'path'      => $image->store('reviews', 'public'),
                 ]);
             }
         }
 
         return response()->json(['message' => '評論已送出', 'review' => $review->load('images')], 201);
+    }
+
+    public function update(Request $request, $reviewId)
+    {
+        $review = Review::where('id', $reviewId)->where('user_id', auth()->id())->firstOrFail();
+
+        $request->validate([
+            'rating'     => 'required|integer|min:1|max:5',
+            'content'    => 'nullable|string|max:1000',
+            'keep_ids'   => 'nullable|array',
+            'keep_ids.*' => 'integer',
+            'images'     => 'nullable|array',
+            'images.*'   => 'image|max:2048',
+        ]);
+
+        $review->update([
+            'rating'  => $request->rating,
+            'content' => $request->content,
+        ]);
+
+        $keepIds = $request->input('keep_ids', []);
+        $review->images()->whereNotIn('id', $keepIds)->each(function ($img) {
+            Storage::disk('public')->delete($img->path);
+            $img->delete();
+        });
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                ReviewImage::create([
+                    'review_id' => $review->id,
+                    'path'      => $image->store('reviews', 'public'),
+                ]);
+            }
+        }
+
+        return response()->json(['message' => '評論已更新', 'review' => $review->load('images')]);
     }
 }
