@@ -112,6 +112,7 @@ const addToCart = async (product) => {
         }
 
         localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new Event("cart-updated"));
         notify("已加入購物車！");
     } finally {
         loadingProductId.value = null;

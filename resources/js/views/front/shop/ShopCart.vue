@@ -38,6 +38,7 @@ const removeFromCart = (id) => {
 
 const updateLocalStorage = () => {
     localStorage.setItem("cart", JSON.stringify(cartItem.value));
+    window.dispatchEvent(new Event("cart-updated"));
 };
 
 const changeQuantity = (item, delta) => {
