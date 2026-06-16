@@ -34,6 +34,7 @@ import AdminComplaintShow        from "./views/admin/ComplaintDetail.vue";
 import Profile                   from "./views/front/profile/Profile.vue";
 import ProfileOrder              from "./views/front/profile/ProfileOrder.vue";
 import ShopCart                  from "./views/front/shop/ShopCart.vue";
+import Favorites                 from "./components/favorites.vue";
 
 // prettier-ignore
 const pageMap = {
@@ -66,6 +67,7 @@ const pageMap = {
     'profile':                     Profile,
     'profile-order':               ProfileOrder,
     'shop-cart':                   ShopCart,
+    'favorites':                   Favorites,
 }
 
 const vuetify = createVuetify();

@@ -3,6 +3,8 @@
     import api from '../../../bootstrap'
     import { getImageUrl } from '../../../utils/image'
     import { useAuth } from '../../../composables/useAuth'
+    import { useFavorites } from '../../../composables/useFavorites'
+    import { useHistories } from '../../../composables/useHistories'
     import FrontLayout from '../../../layouts/FrontLayout.vue'
 
     const window = globalThis
@@ -11,6 +13,8 @@
     const product = ref({})
     const num = ref(1)
     const { fetchUser, isLoggedIn } = useAuth()
+    const { isFavorited, toggleFavorite } = useFavorites()
+    const { addHistory } = useHistories()
     const loginDialog = ref(false)
     const snackbar = ref({ show: false, text: '', color: 'success' })
     const loading = ref(true)
@@ -188,6 +192,7 @@
             .then((res) => {
                 product.value = res.data.product
                 activeImageIndex.value = 0
+                addHistory(res.data.product)
                 fetchRelated(res.data.product.category_id)
             })
             .catch(() => {
@@ -310,9 +315,19 @@
 
                 <v-col cols="12" sm>
                     <div class="d-flex flex-column ga-5">
-                        <h1 class="font-weight-bold ma-0" style="font-size: 1.8rem; color: #1a1a2e; line-height: 1.3">
-                            {{ product.name }}
-                        </h1>
+                        <div class="d-flex flex-row align-center justify-space-between">
+                            <h1 class="font-weight-bold ma-0" style="font-size: 1.8rem; color: #1a1a2e; line-height: 1.3">
+                                {{ product.name }}
+                            </h1>
+                            <v-btn
+                                class="mx-4"
+                                :icon="isFavorited(product.id) ? 'mdi-heart' : 'mdi-heart-outline'"
+                                :color="isFavorited(product.id) ? 'error' : 'grey'"
+                                variant="tonal"
+                                size="large"
+                                @click="toggleFavorite(product); notify(isFavorited(product.id) ? '已加入收藏' : '已移除收藏')"
+                            />
+                        </div>
 
                         <div class="d-flex align-center ga-3">
                             <span class="font-weight-bold text-error" style="font-size: 2rem">NT$ {{ Number(product.price).toLocaleString() }}</span>
@@ -508,9 +523,15 @@
     opacity: 1 !important;
 }
 
+.cart-btn {
+    transition: transform 0.2s, box-shadow 0.25s;
+}
 .cart-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(var(--v-theme-primary), 0.4);
+}
+.back-btn {
+    transition: color 0.2s;
 }
 .back-btn:hover {
     color: rgb(var(--v-theme-primary)) !important;

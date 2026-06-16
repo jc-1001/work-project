@@ -66,6 +66,7 @@ Route::get('/',          [PageController::class, 'home'])->name('front.home');
 Route::get('/shop',      [PageController::class, 'shopIndex'])->name('front.shop');
 Route::get('/shop/{id}', [PageController::class, 'shopShow'])->where('id', '[0-9]+')->name('front.shop.show');
 Route::get('/403',       [PageController::class, 'forbidden']);
+Route::get('/favorites', [PageController::class, 'favorite'])->name('favorite');
 
 /*
 |--------------------------------------------------------------------------

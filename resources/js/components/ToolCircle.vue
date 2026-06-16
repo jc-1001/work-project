@@ -18,6 +18,10 @@
     function openLink() {
         window.open('https://www.ntnu.edu.tw/', '_blank')
     }
+
+    function openFavorite() {
+        window.location.href = '/favorites'
+    }
 </script>
 
 <template>
@@ -63,6 +67,21 @@
                             @click="openLink"
                         >
                             <v-icon icon="mdi-link" size="20" />
+                        </div>
+                    </template>
+                </v-tooltip>
+            </div>
+
+            <div v-if="isOpen" key="favorite">
+                <v-tooltip text="收藏商品" location="left">
+                    <template #activator="{ props }">
+                        <div
+                            class="fab-item d-flex align-center justify-center rounded-circle cursor-pointer bg-white elevation-1"
+                            style="width: 50px; height: 50px"
+                            v-bind="props"
+                            @click="openFavorite"
+                        >
+                            <v-icon icon="mdi-heart" size="20" />
                         </div>
                     </template>
                 </v-tooltip>
