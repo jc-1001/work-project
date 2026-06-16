@@ -71,55 +71,6 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
-    {
-        $product = Product::findOrFail($id);
-
-        $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'price'       => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
-            'description' => 'nullable|string',
-            'image'       => 'nullable|image|max:2048',
-            'is_active'   => 'boolean',
-        ]);
-
-        $oldImagePath = $product->image;
-
-        $newImagePath = null;
-        if ($request->hasFile('image')) {
-            $newImagePath = $request->file('image')->store('products', 'public');
-        }
-
-        try {
-            $product->update([
-                'name'        => $request->name,
-                'category_id' => $request->category_id,
-                'price'       => $request->price,
-                'stock'       => $request->stock,
-                'description' => $request->description,
-                'image'       => $newImagePath ?? $product->image,
-                'is_active'   => $request->input('is_active', true),
-            ]);
-        } catch (\Throwable $e) {
-            if ($newImagePath) Storage::disk('public')->delete($newImagePath);
-            throw $e;
-        }
-
-        if ($newImagePath && $oldImagePath) {
-            try {
-                Storage::disk('public')->delete($oldImagePath);
-            } catch (\Throwable $e) {
-                Log::warning("舊圖刪除失敗: {$oldImagePath} - {$e->getMessage()}");
-            }
-        }
-
-        return response()->json([
-            'product' => $product,
-        ]);
-    }
-
     public function store(Request $request)
     {
         $request->validate([
