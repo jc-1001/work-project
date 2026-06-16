@@ -13,7 +13,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\EcpayController;
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\ComplaintController;
 use Illuminate\Support\Facades\Route;
 
 /*
