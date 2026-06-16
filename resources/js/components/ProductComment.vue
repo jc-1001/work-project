@@ -49,7 +49,7 @@
     }
 
     function submit() {
-        if (!valid.value) return
+        if (!valid.value || !isLoggedIn()) return
         submitting.value = true
 
         const data = new FormData()
@@ -182,7 +182,7 @@
             {{ snackbar.text }}
         </v-snackbar>
 
-        <v-overlay :model-value="!isLoggedIn()" contained class="align-center justify-center" style="backdrop-filter: blur(1px)">
+        <v-overlay :model-value="!isLoggedIn()" contained persistent class="align-center justify-center" style="backdrop-filter: blur(1px)">
             <v-card rounded="xl" class="pa-5 text-center" max-width="320" elevation="4">
                 <p class="text-body-2 text-medium-emphasis mb-5">請先登入才能撰寫評論</p>
                 <v-btn color="primary" variant="tonal" @click="window.location.href = '/login'">前往登入</v-btn>
