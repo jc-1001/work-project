@@ -319,3 +319,5 @@ work-project/
 ---
 
 _Built with Laravel 10 + Vue 3 + Vuetify 4 + Docker_
+
+---
