@@ -3,7 +3,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "build:docker": "vite build && docker cp public/build/. work-project-shop-1:/var/www/html/public/build/"
     },
     "dependencies": {
         "@mdi/font": "^7.4.47",
