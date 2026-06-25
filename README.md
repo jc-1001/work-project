@@ -162,10 +162,13 @@ cp .env.example .env
 # 3. 啟動所有容器
 docker compose up -d
 
-# 4. 執行資料庫遷移與測試資料
+# 4. 建置前端資源並同步至容器
+npm run build:docker
+
+# 5. 執行資料庫遷移與測試資料
 docker compose exec shop php artisan migrate --seed
 
-# 5. 建立 Storage 符號連結（容器啟動時會自動執行）
+# 6. 建立 Storage 符號連結（容器啟動時會自動執行）
 docker compose exec shop php artisan storage:link
 ```
 
