@@ -1,5 +1,5 @@
 #!/bin/bash
-composer install --no-interaction --no-dev --optimize-autoloader --ignore-platform-reqs
+composer install --no-interaction --optimize-autoloader --ignore-platform-reqs
 php artisan config:cache
 # php artisan route:cache
 php artisan view:cache
