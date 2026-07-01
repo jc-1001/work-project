@@ -151,18 +151,35 @@ Nginx（port 8999）
 
 ## 啟動方式
 
-### 方法一：Docker（推薦）
+### 快速啟動
+
+首次設定好 `.env`（`MSSQL_SA_PASSWORD`、`APP_KEY` 皆已填值）且 Docker Desktop 的 WSL Integration 已對此 distro 開啟後，日常開發可直接執行：
+
+```bash
+./start.sh
+```
+
+會自動 `docker compose up -d`，並在需要時安裝 npm 依賴與 build 前端資源。
+
+### 方法一：Docker（手動步驟）
 
 ```bash
 # 1. 複製環境設定檔
 cp .env.example .env
 
 # 2. 依需求修改 .env 中的資料庫密碼與 APP_KEY
+#    MSSQL_SA_PASSWORD 需至少 8 碼並含大小寫字母、數字、符號，否則 mssql 容器會啟動失敗
+#    APP_KEY 留空的話可在容器啟動後執行 `docker compose exec shop php artisan key:generate`
 
-# 3. 啟動所有容器
+# 3. 啟動所有容器（需先在 Docker Desktop → Settings → Resources → WSL Integration 開啟此 distro）
 docker compose up -d
 
 # 4. 建置前端資源並同步至容器
+#    若本機未安裝 Node.js，可改用：
+#    docker run --rm -v $(pwd):/app -w /app node:20 npm ci --legacy-peer-deps
+#    docker run --rm -v $(pwd):/app -w /app node:20 npm run build
+#    （--legacy-peer-deps 是因為 vue-router@5.1.0 的 peerDependency 要求 vite ^7/^8，
+#      但專案鎖定的是 vite ^6，lockfile 版本組合本身沒問題，只是 npm 的嚴格 peer check 會擋下來）
 npm run build:docker
 
 # 5. 執行資料庫遷移與測試資料
